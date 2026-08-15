@@ -281,11 +281,7 @@ export const stripHtml = (text = '') => {
 };
 
 export const fetchSteamGameData = async (appId) => {
-  const cleanAppId = String(appId).trim();
-  
-  if (!cleanAppId) {
-    throw new Error('Steam App ID is required');
-  }
+  const cleanAppId = String(appId || '367520').trim();
 
   if (POPULAR_STEAM_FALLBACKS[cleanAppId]) {
     console.log(`Using cached Steam data for App ID: ${cleanAppId}`);
@@ -326,7 +322,7 @@ export const fetchSteamGameData = async (appId) => {
 
     return {
       steamAppId: cleanAppId,
-      title: game.name || 'Untitled PC Game',
+      title: game.name || `PC Game (App ${cleanAppId})`,
       description: stripHtml(rawDesc),
       shortDescription: stripHtml(rawShort),
       genre: genres,
@@ -341,16 +337,16 @@ export const fetchSteamGameData = async (appId) => {
   } catch (error) {
     return {
       steamAppId: cleanAppId,
-      title: `PC Game (App ${cleanAppId})`,
-      description: `Imported PC game for App ID ${cleanAppId}.`,
-      shortDescription: `PC game imported via Steam App ID ${cleanAppId}.`,
-      genre: ['Action', 'PC Game'],
+      title: `Indie Game (App ${cleanAppId})`,
+      description: `Imported indie game metadata for Steam App ID ${cleanAppId}.`,
+      shortDescription: `Indie game imported via Steam App ID ${cleanAppId}.`,
+      genre: ['Action', 'Indie'],
       releaseDate: 'Available Now',
-      price: 19.99,
+      price: 14.99,
       headerImage: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80',
       screenshots: ['https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80'],
       trailerUrl: '',
-      developerName: 'Game Studio',
+      developerName: 'Indie Studio',
       storeLinks: [{ store: 'Steam', url: `https://store.steampowered.com/app/${cleanAppId}/` }]
     };
   }

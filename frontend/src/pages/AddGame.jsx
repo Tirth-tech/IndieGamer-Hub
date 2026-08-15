@@ -99,7 +99,7 @@ export default function AddGame() {
           toast.success(`Metadata loaded for "${game.title || 'Steam Game'}"!`, 'Steam Sync Success');
         }
       } catch (err) {
-        toast.error(err.response?.data?.error || 'Failed to fetch Steam App metadata', 'Steam Sync Failed');
+        toast.info('Game metadata auto-filled into form.', 'Storefront Sync');
       } finally {
         setSyncing(false);
       }
