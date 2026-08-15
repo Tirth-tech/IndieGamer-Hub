@@ -231,6 +231,36 @@ const POPULAR_STEAM_FALLBACKS = {
     trailerUrl: 'https://www.youtube.com/watch?v=91t0HA9f0FU',
     developerName: 'Supergiant Games',
     storeLinks: [{ store: 'Steam', url: 'https://store.steampowered.com/app/1145360/Hades/' }]
+  },
+  '270880': {
+    title: 'American Truck Simulator',
+    description: 'Experience legendary American trucks and deliver various cargoes across sunny California, Nevada, Arizona, and beyond. Take control of your trucking company.',
+    shortDescription: 'Realistic truck driving simulator featuring detailed American trucks and expansive highway networks.',
+    genre: ['Simulation', 'Driving', 'Automotive', 'Open World', 'Relaxing'],
+    releaseDate: 'Feb 2, 2016',
+    price: 19.99,
+    headerImage: 'https://cdn.cloudflare.steamstatic.com/steam/apps/270880/header.jpg',
+    screenshots: [
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/270880/ss_6c024d271f76cf61771965701a5518b0821d3f9b.1920x1080.jpg'
+    ],
+    trailerUrl: 'https://www.youtube.com/watch?v=N6Z3H7X5d_8',
+    developerName: 'SCS Software',
+    storeLinks: [{ store: 'Steam', url: 'https://store.steampowered.com/app/270880/American_Truck_Simulator/' }]
+  },
+  '227300': {
+    title: 'Euro Truck Simulator 2',
+    description: 'Travel across Europe as king of the road, a trucker who delivers important cargo across impressive distances! Explore dozens of cities in the UK, Belgium, Germany, Italy, Netherlands, Poland, and more.',
+    shortDescription: 'Acclaimed European truck driving simulator with business management and multiplayer convoy mode.',
+    genre: ['Simulation', 'Driving', 'Management', 'Open World', 'Multiplayer'],
+    releaseDate: 'Oct 18, 2012',
+    price: 19.99,
+    headerImage: 'https://cdn.cloudflare.steamstatic.com/steam/apps/227300/header.jpg',
+    screenshots: [
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/227300/ss_2f9b8c04e259e875150937a3c3e669ad982bcae2.1920x1080.jpg'
+    ],
+    trailerUrl: 'https://www.youtube.com/watch?v=xlTuC181yto',
+    developerName: 'SCS Software',
+    storeLinks: [{ store: 'Steam', url: 'https://store.steampowered.com/app/227300/Euro_Truck_Simulator_2/' }]
   }
 };
 
@@ -269,12 +299,19 @@ export const fetchSteamGameData = async (appId) => {
   }
 
   try {
-    const url = `https://store.steampowered.com/api/appdetails?appids=${cleanAppId}`;
-    const response = await axios.get(url, { timeout: 6000, headers: { 'User-Agent': 'IndieGamerHub/1.0' } });
+    const url = `https://store.steampowered.com/api/appdetails?appids=${cleanAppId}&l=english`;
+    const response = await axios.get(url, {
+      timeout: 8000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'en-US,en;q=0.9'
+      }
+    });
     const data = response.data?.[cleanAppId];
 
     if (!data || !data.success || !data.data) {
-      throw new Error(`Steam App ID ${cleanAppId} not found`);
+      throw new Error(`Steam App ID ${cleanAppId} details unavailable`);
     }
 
     const game = data.data;

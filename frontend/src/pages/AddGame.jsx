@@ -96,6 +96,7 @@ export default function AddGame() {
           setTrailerUrl(game.trailerUrl || '');
           if (game.developerName) setDeveloperName(game.developerName);
           setSyncSuccess(true);
+          toast.success(`Metadata loaded for "${game.title || 'Steam Game'}"!`, 'Steam Sync Success');
         }
       } catch (err) {
         toast.error(err.response?.data?.error || 'Failed to fetch Steam App metadata', 'Steam Sync Failed');
