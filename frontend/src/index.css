@@ -375,3 +375,67 @@ a {
   color: #FF6B00;
   text-decoration: underline;
 }
+
+/* ── Android & Mobile User-Friendliness Enhancements ──────────────────────── */
+
+/* Prevent accidental text highlighting during touch tap on Android */
+html, body, button, a, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* Smooth touch scrolling with momentum on mobile browsers */
+body {
+  -webkit-overflow-scrolling: touch;
+  touch-action: manipulation;
+}
+
+/* Responsive Containers & Touch Targets for Mobile Devices */
+@media (max-width: 768px) {
+  /* Increase touch tap target sizes for easy tapping on phone screens */
+  button, .btn-primary, .btn-secondary, .btn-magenta, input, select {
+    min-height: 44px;
+    font-size: 0.95rem;
+  }
+
+  /* Responsive section spacing */
+  .section-title {
+    font-size: 1.35rem;
+  }
+
+  /* Improve card grid padding on small screens */
+  .glass-card {
+    border-radius: var(--radius-sm);
+  }
+
+  /* Touch horizontal scroll lists */
+  .mobile-scroll-x {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 12px;
+    padding-bottom: 12px;
+  }
+  .mobile-scroll-x > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  /* Compact Hero Carousel for phones */
+  .hero-container {
+    min-height: 340px !important;
+  }
+}
+
+/* Fix mobile font sizing for extra small Android screens (<480px) */
+@media (max-width: 480px) {
+  body {
+    font-size: 0.9rem;
+  }
+  .btn-primary, .btn-secondary, .btn-magenta {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+}
+
