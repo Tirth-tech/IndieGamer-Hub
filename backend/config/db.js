@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 
 let mongoServer;
 
@@ -27,14 +26,16 @@ export const connectDB = async () => {
     console.log('MongoDB Connected locally!');
     return;
   } catch (err) {
-    console.log('Local MongoDB not running. Launching MongoMemoryServer in background...');
+    console.log('Local MongoDB not running. Attempting MongoMemoryServer fallback...');
   }
 
-  // Launch MongoMemoryServer (MongoDB 5.0.22 for Mongoose 8 compatibility)
-  MongoMemoryServer.create({
-    instance: { dbName: 'indiegamerhub' },
-    binary: { version: '5.0.22' }
-  }).then(async (ms) => {
+  // Dynamic import so production deployment doesn't require dev dependency if MONGODB_URI is configured
+  try {
+    const { MongoMemoryServer } = await import('mongodb-memory-server');
+    const ms = await MongoMemoryServer.create({
+      instance: { dbName: 'indiegamerhub' },
+      binary: { version: '5.0.22' }
+    });
     mongoServer = ms;
     const uri = ms.getUri();
     await mongoose.connect(uri);
@@ -48,5 +49,7 @@ export const connectDB = async () => {
       const seedModule = await import('../seed.js');
       await seedModule.seedData();
     }
-  }).catch(e => console.warn('MongoMemoryServer note:', e.message));
+  } catch (e) {
+    console.warn('MongoMemoryServer fallback not available or failed:', e.message);
+  }
 };
