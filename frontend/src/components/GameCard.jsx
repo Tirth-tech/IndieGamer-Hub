@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Heart, ExternalLink, Play, ShoppingBag, Check } from 'lucide-react';
+import { Star, Heart, Play, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from './Toast';
 import { stripHtml } from '../utils/textUtils';
@@ -11,12 +11,7 @@ export default function GameCard({ game }) {
   const isWishlisted = user?.savedGames?.includes(game._id);
 
   const [isHovered, setIsHovered] = useState(false);
-  const [activeMediaIdx, setActiveMediaIdx] = useState(0);
   const hoverTimeoutRef = useRef(null);
-
-  const screenshots = game.screenshots && game.screenshots.length > 0
-    ? game.screenshots
-    : [game.headerImage];
 
   const handleMouseEnter = () => {
     hoverTimeoutRef.current = setTimeout(() => {
@@ -29,7 +24,6 @@ export default function GameCard({ game }) {
       clearTimeout(hoverTimeoutRef.current);
     }
     setIsHovered(false);
-    setActiveMediaIdx(0);
   };
 
   const handleWishlistClick = (e) => {
@@ -52,7 +46,7 @@ export default function GameCard({ game }) {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Base & Expanded Card Container */}
+      {/* Base & Floating Expanded Card Container (Steam & Epic Store Style) */}
       <div
         className="glass-card"
         style={{
@@ -65,35 +59,35 @@ export default function GameCard({ game }) {
           transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
           transform: isHovered ? 'scale(1.08) translateY(-8px)' : 'scale(1.0) translateY(0)',
           boxShadow: isHovered
-            ? '0 20px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 107, 0, 0.4)'
+            ? '0 20px 45px rgba(0, 0, 0, 0.85), 0 0 32px rgba(255, 107, 0, 0.45)'
             : '0 4px 12px rgba(0, 0, 0, 0.3)',
-          border: isHovered ? '1px solid rgba(255, 107, 0, 0.65)' : '1px solid var(--border-color)',
+          border: isHovered ? '1px solid rgba(255, 107, 0, 0.70)' : '1px solid var(--border-color)',
           background: isHovered ? 'rgba(18, 14, 11, 0.98)' : 'var(--bg-card)',
           backdropFilter: 'blur(20px)',
         }}
       >
-        {/* Header Media Container */}
+        {/* Header Image Container (Keeps Official Game Header Image Consistent) */}
         <Link
           to={`/game/${game._id}`}
           style={{
             position: 'relative',
             display: 'block',
             overflow: 'hidden',
-            height: isHovered ? '200px' : '170px',
+            height: isHovered ? '195px' : '170px',
             borderRadius: '12px 12px 0 0',
             transition: 'height 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         >
-          {/* Main Media Image */}
+          {/* Main Official Header Image */}
           <img
-            src={screenshots[activeMediaIdx] || game.headerImage || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80'}
+            src={game.headerImage || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80'}
             alt={game.title}
             style={{
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              transition: 'transform 0.4s ease, filter 0.3s ease',
-              transform: isHovered ? 'scale(1.04)' : 'scale(1.0)',
+              transition: 'transform 0.4s ease',
+              transform: isHovered ? 'scale(1.06)' : 'scale(1.0)',
             }}
           />
 
@@ -154,44 +148,9 @@ export default function GameCard({ game }) {
           }}>
             {game.price === 0 ? 'FREE TO PLAY' : formatPrice(game.price)}
           </div>
-
-          {/* Media Switcher Thumbnails on Hover (Microsoft Store style) */}
-          {isHovered && screenshots.length > 1 && (
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '10px',
-                left: '10px',
-                display: 'flex',
-                gap: '4px',
-                zIndex: 4,
-                background: 'rgba(9, 9, 9, 0.75)',
-                padding: '3px 6px',
-                borderRadius: '6px',
-                backdropFilter: 'blur(6px)'
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {screenshots.slice(0, 4).map((img, idx) => (
-                <div
-                  key={idx}
-                  onMouseEnter={() => setActiveMediaIdx(idx)}
-                  style={{
-                    width: '14px',
-                    height: '14px',
-                    borderRadius: '3px',
-                    background: activeMediaIdx === idx ? '#FF6B00' : 'rgba(255, 255, 255, 0.4)',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    transform: activeMediaIdx === idx ? 'scale(1.2)' : 'scale(1.0)'
-                  }}
-                />
-              ))}
-            </div>
-          )}
         </Link>
 
-        {/* Card Main Info */}
+        {/* Card Main Content */}
         <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -261,7 +220,7 @@ export default function GameCard({ game }) {
             </div>
           </div>
 
-          {/* Microsoft Store Flyout Extra Details (Expands when hovered) */}
+          {/* Steam / Epic Style Expanded Action Flyout (Appears smoothly on hover) */}
           {isHovered && (
             <div
               style={{
@@ -271,7 +230,7 @@ export default function GameCard({ game }) {
                 animation: 'slideUpFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards'
               }}
             >
-              <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                 <Link
                   to={`/game/${game._id}`}
                   className="btn-primary"
@@ -283,7 +242,7 @@ export default function GameCard({ game }) {
                     borderRadius: '6px'
                   }}
                 >
-                  <Play size={14} fill="#fff" /> View Game Page
+                  <Play size={14} fill="#fff" /> Explore Game Page
                 </Link>
 
                 <button
