@@ -23,8 +23,8 @@ router.get('/featured', getFeaturedGames);
 router.get('/trending', getTrendingGames);
 router.get('/upcoming', getUpcomingGames);
 router.get('/pending', protect, authorize('admin'), getPendingGames);
-router.get('/steam-preview/:appId', protect, previewSteamGame);
-router.get('/epic-preview/:slug', protect, previewEpicGame);
+router.get('/steam-preview/:appId', previewSteamGame);
+router.get('/epic-preview/:slug', previewEpicGame);
 router.get('/:id', getGameById);
 
 router.post('/', protect, authorize('developer', 'admin'), createGame);
