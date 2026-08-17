@@ -175,15 +175,25 @@ export default function Login() {
 
         {error && (
           <div style={{
-            background: 'rgba(255, 0, 80, 0.15)',
-            border: '1px solid #f87171',
+            background: error.includes('pending admin approval') ? 'rgba(255, 176, 0, 0.15)' : 'rgba(255, 0, 80, 0.15)',
+            border: error.includes('pending admin approval') ? '1px solid #FFB000' : '1px solid #f87171',
             color: '#fff',
-            padding: '12px 14px',
+            padding: '14px 16px',
             borderRadius: '8px',
-            fontSize: '0.85rem',
-            marginBottom: '20px'
+            fontSize: '0.88rem',
+            marginBottom: '20px',
+            lineHeight: '1.5'
           }}>
-            ❌ {error}
+            {error.includes('pending admin approval') ? (
+              <div>
+                <div style={{ fontWeight: 800, color: '#FFB000', marginBottom: '4px', fontSize: '0.95rem' }}>
+                  ⏳ Developer Account Pending Approval
+                </div>
+                <div>{error}</div>
+              </div>
+            ) : (
+              <span>❌ {error}</span>
+            )}
           </div>
         )}
 

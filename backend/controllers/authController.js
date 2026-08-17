@@ -8,21 +8,21 @@ export const register = async (req, res) => {
   try {
     const { name, email, password, role, bio, avatar, country } = req.body;
 
+    const isAdminEmail = email.toLowerCase() === 'tirthkapuriya324@gmail.com' ||
+                         email.toLowerCase() === 'tirthkapuriya18@gmail.com' ||
+                         email.toLowerCase() === 'tirthkapuriya@gmail.com' ||
+                         (process.env.ADMIN_EMAIL && email.toLowerCase() === process.env.ADMIN_EMAIL.toLowerCase());
+
     try {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(400).json({ error: 'User with this email already exists' });
       }
 
-      // Admin is auto-assigned by email
+      // Admin is auto-assigned ONLY if email matches designated admin email
       let userRole = 'gamer';
       let status   = 'approved';
       let pendingRole = null;
-
-      const isAdminEmail = email.toLowerCase() === 'tirthkapuriya324@gmail.com' ||
-                           email.toLowerCase() === 'tirthkapuriya18@gmail.com' ||
-                           email.toLowerCase() === 'tirthkapuriya@gmail.com' ||
-                           (process.env.ADMIN_EMAIL && email.toLowerCase() === process.env.ADMIN_EMAIL.toLowerCase());
 
       if (isAdminEmail) {
         userRole = 'admin';
@@ -83,22 +83,41 @@ export const register = async (req, res) => {
 
     } catch (dbErr) {
       // Memory Fallback
-      const existing = memoryStore.users.find(u => u.email === email);
+      const existing = memoryStore.users.find(u => u.email.toLowerCase() === email.toLowerCase());
       if (existing) return res.status(400).json({ error: 'User with this email already exists' });
 
-      let userRole = role || 'gamer';
-      if (isAdminEmail) userRole = 'admin';
+      let userRole = 'gamer';
+      let status   = 'approved';
+      let pendingRole = null;
+
+      if (isAdminEmail) {
+        userRole = 'admin';
+      } else if (role === 'developer') {
+        userRole    = 'gamer';
+        status      = 'pending';
+        pendingRole = 'developer';
+      }
 
       const newMemUser = {
         _id: 'user_' + Date.now(), id: 'user_' + Date.now(),
-        name, email,
+        name, email, password,
         role: userRole,
+        status,
+        pendingRole,
         bio:     bio     || 'User bio.',
         avatar:  avatar  || 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80',
         country: country || 'United States',
         savedGames: []
       };
       memoryStore.users.push(newMemUser);
+
+      if (status === 'pending') {
+        return res.status(201).json({
+          message: 'Registration successful! Your developer request is pending admin approval. You will receive an email once approved.',
+          pending: true,
+          user: newMemUser
+        });
+      }
 
       const token = generateToken(newMemUser._id);
       return res.status(201).json({ message: 'Registration successful (memory store)', token, user: newMemUser });
@@ -108,14 +127,24 @@ export const register = async (req, res) => {
   }
 };
 
-// @route   GET /api/auth/approve/:userId?action=approve|reject  (admin clicks link in email)
+// @route   GET /api/auth/approve/:userId?action=approve|reject  (admin clicks link in email or dashboard)
 export const approveDeveloper = async (req, res) => {
   try {
     const { userId } = req.params;
     const { action }  = req.query; // 'approve' or 'reject'
     const isJson = req.headers['accept']?.includes('application/json');
 
-    const user = await User.findById(userId);
+    let user;
+    try {
+      user = await User.findById(userId);
+    } catch (dbErr) {
+      user = memoryStore.users.find(u => u._id === userId || u.id === userId);
+    }
+
+    if (!user) {
+      user = memoryStore.users.find(u => u._id === userId || u.id === userId);
+    }
+
     if (!user) {
       if (isJson) return res.status(404).json({ error: 'User not found' });
       return res.status(404).send('<h2>User not found</h2>');
@@ -125,7 +154,7 @@ export const approveDeveloper = async (req, res) => {
       user.role        = user.pendingRole || 'developer';
       user.status      = 'approved';
       user.pendingRole = null;
-      await user.save();
+      if (user.save) await user.save();
 
       // Send notification email to developer
       try {
@@ -148,7 +177,7 @@ export const approveDeveloper = async (req, res) => {
     } else {
       user.status      = 'rejected';
       user.pendingRole = null;
-      await user.save();
+      if (user.save) await user.save();
 
       try {
         await sendApprovalResultEmail({ developerEmail: user.email, developerName: user.name, approved: false });
@@ -175,8 +204,16 @@ export const approveDeveloper = async (req, res) => {
 // @route   GET /api/auth/pending-developers  (admin dashboard)
 export const getPendingDevelopers = async (req, res) => {
   try {
-    const pending = await User.find({ status: 'pending', pendingRole: 'developer' })
-      .select('-password').sort({ createdAt: -1 });
+    let pending = [];
+    try {
+      pending = await User.find({ status: 'pending', pendingRole: 'developer' })
+        .select('-password').sort({ createdAt: -1 });
+    } catch (dbErr) {
+      pending = memoryStore.users.filter(u => u.status === 'pending' && u.pendingRole === 'developer');
+    }
+    if (!pending || pending.length === 0) {
+      pending = memoryStore.users.filter(u => u.status === 'pending' && u.pendingRole === 'developer');
+    }
     res.json({ developers: pending });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -191,6 +228,10 @@ export const checkApprovalStatus = async (req, res) => {
     try {
       user = await User.findById(userId);
     } catch (dbErr) {
+      user = memoryStore.users.find(u => u._id === userId || u.id === userId);
+    }
+
+    if (!user) {
       user = memoryStore.users.find(u => u._id === userId || u.id === userId);
     }
 
@@ -252,7 +293,7 @@ export const login = async (req, res) => {
 
       if (user.status === 'pending') {
         return res.status(403).json({
-          error: 'Your developer account registration is pending admin approval.',
+          error: 'Your developer account registration is pending admin approval. You will receive an email once approved.',
           pending: true,
           userId: String(user._id)
         });
@@ -283,11 +324,25 @@ export const login = async (req, res) => {
       });
     } catch (dbErr) {
       // Memory Fallback check
-      const memUser = memoryStore.users.find(u => u.email === email);
+      const memUser = memoryStore.users.find(u => u.email.toLowerCase() === email.toLowerCase());
       if (!memUser) return res.status(401).json({ error: 'Invalid credentials (memory fallback)' });
       
       if (memUser.password && memUser.password !== password) {
         return res.status(401).json({ error: 'Invalid email or password' });
+      }
+
+      if (memUser.status === 'pending') {
+        return res.status(403).json({
+          error: 'Your developer account registration is pending admin approval. You will receive an email once approved.',
+          pending: true,
+          userId: String(memUser._id)
+        });
+      }
+
+      if (memUser.status === 'rejected') {
+        return res.status(403).json({
+          error: 'Your developer account registration was rejected by the admin.'
+        });
       }
 
       const token = generateToken(memUser._id);
