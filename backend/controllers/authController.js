@@ -50,13 +50,15 @@ export const register = async (req, res) => {
 
       // Send approval email to admin for developer requests (fire-and-forget, don't block registration)
       if (status === 'pending') {
-        // Send email in background — do NOT await
-        sendDeveloperApprovalEmail({
-          developerId:    String(user._id),
-          developerName:  user.name,
-          developerEmail: user.email,
-        }).catch(emailErr => {
-          console.warn('Email notification failed (check EMAIL_PASS in .env):', emailErr.message);
+        // Send email in background — do NOT await so API response is instant
+        setImmediate(() => {
+          sendDeveloperApprovalEmail({
+            developerId:    String(user._id),
+            developerName:  user.name,
+            developerEmail: user.email,
+          }).catch(emailErr => {
+            console.warn('Email notification failed (check EMAIL_PASS in .env):', emailErr.message);
+          });
         });
 
         return res.status(201).json({
@@ -116,6 +118,16 @@ export const register = async (req, res) => {
       memoryStore.users.push(newMemUser);
 
       if (status === 'pending') {
+        setImmediate(() => {
+          sendDeveloperApprovalEmail({
+            developerId:    String(newMemUser._id),
+            developerName:  newMemUser.name,
+            developerEmail: newMemUser.email,
+          }).catch(emailErr => {
+            console.warn('Email notification failed (memory fallback):', emailErr.message);
+          });
+        });
+
         return res.status(201).json({
           message: 'Registration successful! Your developer request is pending admin approval. You will receive an email once approved.',
           pending: true,
