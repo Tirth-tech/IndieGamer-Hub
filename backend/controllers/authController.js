@@ -169,12 +169,14 @@ export const approveDeveloper = async (req, res) => {
       }
 
       if (isJson) return res.json({ success: true, action: 'approved', user: { name: user.name, email: user.email } });
+      const frontendAdminUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin`;
       return res.send(`
         <html><body style="font-family:Arial;background:#0D0D0D;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">
-          <div style="text-align:center;background:#17130F;padding:40px;border-radius:12px;border:1px solid #FF6B00">
+          <div style="text-align:center;background:#17130F;padding:40px;border-radius:12px;border:1px solid #FF6B00;max-width:480px;">
             <h1 style="color:#FF6B00">✅ Developer Approved!</h1>
             <p><strong>${user.name}</strong> (${user.email}) is now a verified Developer.</p>
             <p style="color:#9B9B9B">They have been notified by email.</p>
+            <a href="${frontendAdminUrl}" style="display:inline-block;margin-top:20px;padding:12px 24px;background:linear-gradient(135deg,#FF6B00,#FFB000);color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;">Return to Admin Dashboard</a>
           </div>
         </body></html>
       `);
@@ -191,11 +193,14 @@ export const approveDeveloper = async (req, res) => {
       }
 
       if (isJson) return res.json({ success: true, action: 'rejected', user: { name: user.name, email: user.email } });
+      const frontendAdminUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin`;
       return res.send(`
         <html><body style="font-family:Arial;background:#0D0D0D;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">
-          <div style="text-align:center;background:#17130F;padding:40px;border-radius:12px;border:1px solid #FF4444">
+          <div style="text-align:center;background:#17130F;padding:40px;border-radius:12px;border:1px solid #FF4444;max-width:480px;">
             <h1 style="color:#FF6B6B">❌ Request Rejected</h1>
             <p><strong>${user.name}</strong>'s developer request has been rejected.</p>
+            <p style="color:#9B9B9B">They have been notified by email.</p>
+            <a href="${frontendAdminUrl}" style="display:inline-block;margin-top:20px;padding:12px 24px;background:rgba(255,255,255,0.1);color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;">Return to Admin Dashboard</a>
           </div>
         </body></html>
       `);

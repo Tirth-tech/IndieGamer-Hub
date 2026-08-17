@@ -7,9 +7,9 @@ const createTransporter = () => {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    connectionTimeout: 5000, // 5 seconds to connect
-    greetingTimeout: 5000,
-    socketTimeout: 10000,    // 10 seconds max for the whole send
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   });
 };
 
@@ -18,109 +18,158 @@ export const sendDeveloperApprovalEmail = async ({ developerId, developerName, d
   const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
   const approveUrl = `${baseUrl}/api/auth/approve/${developerId}?action=approve`;
   const rejectUrl  = `${baseUrl}/api/auth/approve/${developerId}?action=reject`;
+  const adminEmail = process.env.ADMIN_EMAIL || 'tirthkapuriya18@gmail.com';
 
   const html = `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="UTF-8" />
-      <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0D0D0D; color: #E0E0E0; margin: 0; padding: 0; }
-        .container { max-width: 580px; margin: 40px auto; background: #17130F; border: 1px solid #3A2818; border-radius: 12px; overflow: hidden; }
-        .header { background: linear-gradient(135deg, #FF6B00, #FFB000); padding: 28px 32px; }
-        .header h1 { color: #fff; font-size: 1.4rem; margin: 0; font-weight: 800; }
-        .header p { color: rgba(255,255,255,0.85); margin: 6px 0 0; font-size: 0.9rem; }
-        .body { padding: 28px 32px; }
-        .info-box { background: rgba(255,107,0,0.08); border: 1px solid rgba(255,107,0,0.25); border-radius: 8px; padding: 16px 20px; margin: 20px 0; }
-        .info-box p { margin: 4px 0; font-size: 0.92rem; color: #C4B5A5; }
-        .info-box strong { color: #fff; }
-        .btn-row { display: flex; gap: 14px; margin: 28px 0 8px; }
-        .btn { display: inline-block; padding: 13px 28px; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 0.95rem; text-align: center; }
-        .btn-approve { background: linear-gradient(135deg, #FF6B00, #FFB000); color: #fff; }
-        .btn-reject  { background: rgba(255,68,68,0.15); color: #FF6B6B; border: 1px solid rgba(255,68,68,0.4); }
-        .footer { padding: 16px 32px; border-top: 1px solid #3A2818; font-size: 0.78rem; color: #666; }
-      </style>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>🎮 New Developer Registration</h1>
-          <p>IndieGamer Hub — Admin Approval Required</p>
+    <body style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #0D0D0D; color: #E0E0E0; margin: 0; padding: 20px;">
+      <div style="max-width: 580px; margin: 20px auto; background-color: #17130F; border: 1px solid #3A2818; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+        
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #FF6B00, #FFB000); padding: 28px 32px;">
+          <h1 style="color: #ffffff; font-size: 1.4rem; margin: 0; font-weight: 800;">🎮 New Developer Registration</h1>
+          <p style="color: rgba(255,255,255,0.9); margin: 6px 0 0; font-size: 0.9rem;">IndieGamer Hub — Admin Action Required</p>
         </div>
-        <div class="body">
-          <p style="font-size:0.95rem;color:#C4B5A5;margin:0 0 16px;">
-            A new user has requested <strong style="color:#FF6B00">Developer</strong> access on IndieGamer Hub.
-            Review their details below and approve or reject their request.
+
+        <!-- Body -->
+        <div style="padding: 28px 32px;">
+          <p style="font-size: 0.95rem; color: #C4B5A5; margin: 0 0 16px; line-height: 1.5;">
+            A new user has registered and requested <strong style="color: #FF6B00;">Indie Developer</strong> access on IndieGamer Hub. Please review their application below and select an action to Approve or Reject.
           </p>
 
-          <div class="info-box">
-            <p>👤 <strong>Name:</strong> ${developerName}</p>
-            <p>📧 <strong>Email:</strong> ${developerEmail}</p>
-            <p>🆔 <strong>User ID:</strong> ${developerId}</p>
-            <p>⏰ <strong>Requested:</strong> ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST</p>
+          <!-- Info Box -->
+          <div style="background-color: rgba(255,107,0,0.08); border: 1px solid rgba(255,107,0,0.25); border-radius: 8px; padding: 18px 20px; margin: 20px 0;">
+            <p style="margin: 6px 0; font-size: 0.92rem; color: #C4B5A5;">👤 <strong style="color: #ffffff;">Name:</strong> ${developerName}</p>
+            <p style="margin: 6px 0; font-size: 0.92rem; color: #C4B5A5;">📧 <strong style="color: #ffffff;">Email:</strong> ${developerEmail}</p>
+            <p style="margin: 6px 0; font-size: 0.92rem; color: #C4B5A5;">🆔 <strong style="color: #ffffff;">User ID:</strong> ${developerId}</p>
+            <p style="margin: 6px 0; font-size: 0.92rem; color: #C4B5A5;">⏰ <strong style="color: #ffffff;">Requested At:</strong> ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST</p>
           </div>
 
-          <p style="font-size:0.88rem;color:#9B9B9B;margin:0 0 8px;">
-            As a Developer, this user will be able to upload and manage games on the platform.
+          <p style="font-size: 0.88rem; color: #9B9B9B; margin: 0 0 20px; line-height: 1.4;">
+            As an approved Developer, this account will be authorized to submit, publish, and manage indie games on the platform.
           </p>
 
-          <div class="btn-row">
-            <a href="${approveUrl}" class="btn btn-approve">✅ Approve Developer</a>
-            <a href="${rejectUrl}"  class="btn btn-reject">❌ Reject Request</a>
+          <!-- Action Buttons with pure inline styles for Gmail compatibility -->
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0;">
+            <tr>
+              <td align="center" style="padding-right: 8px;">
+                <a href="${approveUrl}" target="_blank" style="display: inline-block; padding: 14px 24px; background: #FF6B00; background: linear-gradient(135deg, #FF6B00, #FFB000); color: #ffffff !important; text-decoration: none !important; font-weight: 800; font-size: 0.95rem; border-radius: 8px; text-align: center; border: 1px solid #FF6B00;">
+                  ✅ Approve Developer
+                </a>
+              </td>
+              <td align="center" style="padding-left: 8px;">
+                <a href="${rejectUrl}" target="_blank" style="display: inline-block; padding: 14px 24px; background-color: #2A1515; color: #FF6B6B !important; text-decoration: none !important; font-weight: 800; font-size: 0.95rem; border-radius: 8px; text-align: center; border: 1px solid rgba(255,68,68,0.5);">
+                  ❌ Reject Request
+                </a>
+              </td>
+            </tr>
+          </table>
+
+          <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #2D2218; font-size: 0.78rem; color: #777777; line-height: 1.6;">
+            Direct links if buttons are disabled by your mail client:<br/>
+            <strong>Approve:</strong> <a href="${approveUrl}" style="color: #FF6B00; word-break: break-all;">${approveUrl}</a><br/>
+            <strong>Reject:</strong> <a href="${rejectUrl}" style="color: #FF6B6B; word-break: break-all;">${rejectUrl}</a>
           </div>
-
-          <p style="font-size:0.78rem;color:#555;margin-top:20px;">
-            Or copy these links:<br/>
-            Approve: <a href="${approveUrl}" style="color:#FF6B00">${approveUrl}</a><br/>
-            Reject:  <a href="${rejectUrl}"  style="color:#FF6B6B">${rejectUrl}</a>
-          </p>
         </div>
-        <div class="footer">
-          IndieGamer Hub Admin Panel · This email was sent automatically · Do not reply
+
+        <div style="padding: 16px 32px; background-color: #110E0B; border-top: 1px solid #2D2218; font-size: 0.78rem; color: #666666; text-align: center;">
+          IndieGamer Hub Admin Panel · Automated Notification
         </div>
       </div>
     </body>
     </html>
   `;
 
-  const transporter = createTransporter();
-  await transporter.sendMail({
-    from: `"IndieGamer Hub" <${process.env.EMAIL_USER}>`,
-    to: process.env.ADMIN_EMAIL,
-    subject: `🎮 Developer Request: ${developerName} wants Developer access`,
-    html,
-  });
+  try {
+    const transporter = createTransporter();
+    const info = await transporter.sendMail({
+      from: `"IndieGamer Hub" <${process.env.EMAIL_USER}>`,
+      to: adminEmail,
+      subject: `🎮 Developer Request: ${developerName} wants Developer access`,
+      html,
+    });
+    console.log(`✅ Admin approval email sent to ${adminEmail} (MsgID: ${info.messageId})`);
+    return info;
+  } catch (err) {
+    console.error(`❌ Failed to send admin approval email to ${adminEmail}:`, err.message);
+    throw err;
+  }
 };
 
 // ── Notify developer of approval result ─────────────────────────────────────
 export const sendApprovalResultEmail = async ({ developerEmail, developerName, approved }) => {
+  const loginUrl = `${process.env.BASE_URL?.replace('5000','3000') || 'http://localhost:3000'}/login`;
+  const homeUrl = `${process.env.BASE_URL?.replace('5000','3000') || 'http://localhost:3000'}/`;
+
   const html = approved ? `
-    <div style="font-family:Arial;background:#0D0D0D;color:#E0E0E0;padding:32px;max-width:520px;margin:auto;border:1px solid #3A2818;border-radius:12px;">
-      <h2 style="color:#FF6B00;">🎉 Welcome to IndieGamer Hub, Developer!</h2>
-      <p>Hi <strong>${developerName}</strong>,</p>
-      <p>Great news! Your developer account has been <strong style="color:#39FF88">approved</strong> by the admin.</p>
-      <p>You can now log in and start uploading your games to the platform.</p>
-      <a href="${process.env.BASE_URL?.replace('5000','3000') || 'http://localhost:3000'}/login" 
-         style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#FF6B00,#FFB000);color:#fff;border-radius:8px;text-decoration:none;font-weight:800;margin-top:16px;">
-        Go to IndieGamer Hub
-      </a>
-    </div>
+    <!DOCTYPE html>
+    <html>
+    <body style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #0D0D0D; color: #E0E0E0; margin: 0; padding: 20px;">
+      <div style="max-width: 540px; margin: 20px auto; background-color: #17130F; border: 1px solid #3A2818; border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div style="display: inline-block; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #39FF88, #059669); line-height: 60px; font-size: 1.8rem;">🎉</div>
+        </div>
+        <h2 style="color: #FF6B00; font-size: 1.5rem; margin-top: 0; text-align: center;">Welcome to IndieGamer Hub!</h2>
+        <p style="font-size: 1rem; color: #FFFFFF;">Hi <strong>${developerName}</strong>,</p>
+        <p style="font-size: 0.95rem; color: #C4B5A5; line-height: 1.6;">
+          Great news! Your <strong style="color: #39FF88;">Developer Account</strong> has been approved by the platform administrator.
+        </p>
+        <p style="font-size: 0.95rem; color: #C4B5A5; line-height: 1.6;">
+          You can now log in, submit your indie games to our catalog, track performance, and connect with the community.
+        </p>
+        <div style="text-align: center; margin-top: 28px;">
+          <a href="${loginUrl}" style="display: inline-block; padding: 14px 28px; background: linear-gradient(135deg, #FF6B00, #FFB000); color: #ffffff !important; text-decoration: none !important; font-weight: 800; font-size: 1rem; border-radius: 8px;">
+            🚀 Log In to Developer Portal
+          </a>
+        </div>
+      </div>
+    </body>
+    </html>
   ` : `
-    <div style="font-family:Arial;background:#0D0D0D;color:#E0E0E0;padding:32px;max-width:520px;margin:auto;border:1px solid #3A2818;border-radius:12px;">
-      <h2 style="color:#FF6B6B;">Developer Request Rejected</h2>
-      <p>Hi <strong>${developerName}</strong>,</p>
-      <p>Unfortunately, your developer account request was <strong style="color:#FF6B6B">not approved</strong> at this time.</p>
-      <p>If you believe this is a mistake, please contact the admin directly.</p>
-    </div>
+    <!DOCTYPE html>
+    <html>
+    <body style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #0D0D0D; color: #E0E0E0; margin: 0; padding: 20px;">
+      <div style="max-width: 540px; margin: 20px auto; background-color: #17130F; border: 1px solid #3A2818; border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div style="display: inline-block; width: 60px; height: 60px; border-radius: 50%; background: rgba(255,68,68,0.15); border: 1px solid rgba(255,68,68,0.4); line-height: 60px; font-size: 1.8rem;">❌</div>
+        </div>
+        <h2 style="color: #FF6B6B; font-size: 1.4rem; margin-top: 0; text-align: center;">Developer Request Status Update</h2>
+        <p style="font-size: 1rem; color: #FFFFFF;">Hi <strong>${developerName}</strong>,</p>
+        <p style="font-size: 0.95rem; color: #C4B5A5; line-height: 1.6;">
+          Thank you for your interest in IndieGamer Hub. Regrettably, your request for a Developer account was <strong style="color: #FF6B6B;">not approved</strong> by the admin at this time.
+        </p>
+        <p style="font-size: 0.95rem; color: #C4B5A5; line-height: 1.6;">
+          You are still welcome to browse games, participate in community forums, and write reviews as a Gamer member.
+        </p>
+        <div style="text-align: center; margin-top: 28px;">
+          <a href="${homeUrl}" style="display: inline-block; padding: 12px 24px; background: rgba(255,255,255,0.08); color: #ffffff !important; text-decoration: none !important; font-weight: 700; font-size: 0.9rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);">
+            Browse IndieGamer Hub
+          </a>
+        </div>
+      </div>
+    </body>
+    </html>
   `;
 
-  const transporter = createTransporter();
-  await transporter.sendMail({
-    from: `"IndieGamer Hub" <${process.env.EMAIL_USER}>`,
-    to: developerEmail,
-    subject: approved ? '✅ Developer Account Approved — IndieGamer Hub' : '❌ Developer Request Update — IndieGamer Hub',
-    html,
-  });
+  try {
+    const transporter = createTransporter();
+    const info = await transporter.sendMail({
+      from: `"IndieGamer Hub" <${process.env.EMAIL_USER}>`,
+      to: developerEmail,
+      subject: approved ? '✅ Developer Account Approved — IndieGamer Hub' : '❌ Developer Account Update — IndieGamer Hub',
+      html,
+    });
+    console.log(`✅ Developer ${approved ? 'approval' : 'rejection'} email sent to ${developerEmail} (MsgID: ${info.messageId})`);
+    return info;
+  } catch (err) {
+    console.error(`❌ Failed to send developer ${approved ? 'approval' : 'rejection'} email to ${developerEmail}:`, err.message);
+    throw err;
+  }
 };
 
 // ── Notify developer when their submitted game is approved or rejected by admin ──
@@ -128,34 +177,52 @@ export const sendGameApprovalResultEmail = async ({ developerEmail, developerNam
   const catalogUrl = `${process.env.BASE_URL?.replace('5000','3000') || 'http://localhost:3000'}/game/${gameId}`;
 
   const html = approved ? `
-    <div style="font-family:Arial;background:#0D0D0D;color:#E0E0E0;padding:32px;max-width:560px;margin:auto;border:1px solid #3A2818;border-radius:12px;">
-      <h2 style="color:#FF6B00;">🎉 Game Published on IndieGamer Hub!</h2>
-      <p>Hi <strong>${developerName}</strong>,</p>
-      <p>Great news! Your game submission <strong style="color:#fff">"${gameTitle}"</strong> has been <strong style="color:#39FF88">approved</strong> by the platform admin and is now live on our public catalog!</p>
-      <p>Gamers around the world can now discover, play, and review your title.</p>
-      <a href="${catalogUrl}" 
-         style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#FF6B00,#FFB000);color:#fff;border-radius:8px;text-decoration:none;font-weight:800;margin-top:16px;">
-        🎮 View Live Game Page
-      </a>
-    </div>
+    <!DOCTYPE html>
+    <html>
+    <body style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #0D0D0D; color: #E0E0E0; margin: 0; padding: 20px;">
+      <div style="max-width: 560px; margin: 20px auto; background-color: #17130F; border: 1px solid #3A2818; border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+        <h2 style="color: #FF6B00; font-size: 1.4rem; margin-top: 0;">🎉 Game Published on IndieGamer Hub!</h2>
+        <p style="color: #FFFFFF;">Hi <strong>${developerName}</strong>,</p>
+        <p style="color: #C4B5A5; line-height: 1.6;">
+          Great news! Your game submission <strong style="color: #ffffff;">"${gameTitle}"</strong> has been <strong style="color: #39FF88;">approved</strong> by the platform admin and is now live on our public catalog!
+        </p>
+        <p style="color: #C4B5A5; line-height: 1.6;">Gamers around the world can now discover, play, and review your title.</p>
+        <div style="text-align: center; margin-top: 24px;">
+          <a href="${catalogUrl}" style="display: inline-block; padding: 14px 28px; background: linear-gradient(135deg, #FF6B00, #FFB000); color: #ffffff !important; text-decoration: none !important; font-weight: 800; font-size: 0.95rem; border-radius: 8px;">
+            🎮 View Live Game Page
+          </a>
+        </div>
+      </div>
+    </body>
+    </html>
   ` : `
-    <div style="font-family:Arial;background:#0D0D0D;color:#E0E0E0;padding:32px;max-width:560px;margin:auto;border:1px solid #3A2818;border-radius:12px;">
-      <h2 style="color:#FF6B6B;">Game Submission Update</h2>
-      <p>Hi <strong>${developerName}</strong>,</p>
-      <p>Your game submission <strong>"${gameTitle}"</strong> was <strong style="color:#FF6B6B">not approved</strong> for publication at this time.</p>
-      <p>If you have any questions or want to update details, please contact the admin.</p>
-    </div>
+    <!DOCTYPE html>
+    <html>
+    <body style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #0D0D0D; color: #E0E0E0; margin: 0; padding: 20px;">
+      <div style="max-width: 560px; margin: 20px auto; background-color: #17130F; border: 1px solid #3A2818; border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+        <h2 style="color: #FF6B6B; font-size: 1.4rem; margin-top: 0;">Game Submission Update</h2>
+        <p style="color: #FFFFFF;">Hi <strong>${developerName}</strong>,</p>
+        <p style="color: #C4B5A5; line-height: 1.6;">
+          Your game submission <strong>"${gameTitle}"</strong> was <strong style="color: #FF6B6B;">not approved</strong> for publication at this time.
+        </p>
+        <p style="color: #C4B5A5; line-height: 1.6;">If you have any questions or want to update details, please contact the admin.</p>
+      </div>
+    </body>
+    </html>
   `;
 
   try {
     const transporter = createTransporter();
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: `"IndieGamer Hub" <${process.env.EMAIL_USER}>`,
       to: developerEmail,
       subject: approved ? `🎉 Published: "${gameTitle}" is now live!` : `❌ Update on your game submission "${gameTitle}"`,
       html,
     });
+    console.log(`✅ Game ${approved ? 'approval' : 'rejection'} email sent to ${developerEmail} (MsgID: ${info.messageId})`);
+    return info;
   } catch (err) {
     console.warn('Failed to send game approval result email:', err.message);
   }
 };
+
