@@ -1,23 +1,13 @@
 // In-Memory Data Store Fallback for zero-config/offline instant execution
 export const users = [
   {
-    _id: 'user_admin_324',
+    _id: 'user_admin_18',
     name: 'Admin Tirth',
-    email: 'tirthkapuriya324@gmail.com',
+    email: 'tirthkapuriya18@gmail.com',
     password: 'asha15',
     role: 'admin',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    bio: 'Lead Curator and Platform Manager.',
-    country: 'India'
-  },
-  {
-    _id: 'user_admin_1',
-    name: 'Tirth Kapuriya',
-    email: 'tirthkapuriya@gmail.com',
-    password: '123456',
-    role: 'admin',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    bio: 'Lead Curator and Platform Manager.',
+    bio: 'Platform Administrator',
     country: 'India'
   },
   {

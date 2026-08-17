@@ -8,9 +8,8 @@ export const register = async (req, res) => {
   try {
     const { name, email, password, role, bio, avatar, country } = req.body;
 
-    const isAdminEmail = email.toLowerCase() === 'tirthkapuriya324@gmail.com' ||
-                         email.toLowerCase() === 'tirthkapuriya18@gmail.com' ||
-                         email.toLowerCase() === 'tirthkapuriya@gmail.com' ||
+    const isAdminEmail = email.toLowerCase() === 'tirthkapuriya18@gmail.com' ||
+                         email.toLowerCase() === 'tirthkapuriya18@gamil.com' ||
                          (process.env.ADMIN_EMAIL && email.toLowerCase() === process.env.ADMIN_EMAIL.toLowerCase());
 
     try {

@@ -25,9 +25,9 @@ export const seedData = async () => {
 
     console.log('Seeding Users...');
     const adminUser = await User.create({
-      name: 'Tirth Kapuriya',
-      email: 'tirthkapuriya@gmail.com',
-      password: '123456',
+      name: 'Admin Tirth',
+      email: 'tirthkapuriya18@gmail.com',
+      password: 'asha15',
       role: 'admin',
       bio: 'Lead Curator and Platform Manager at IndieGamer Hub.',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
