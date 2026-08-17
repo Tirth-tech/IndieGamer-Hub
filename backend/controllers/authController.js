@@ -48,17 +48,16 @@ export const register = async (req, res) => {
         country: country || 'United States'
       });
 
-      // Send approval email to admin for developer requests
+      // Send approval email to admin for developer requests (fire-and-forget, don't block registration)
       if (status === 'pending') {
-        try {
-          await sendDeveloperApprovalEmail({
-            developerId:    String(user._id),
-            developerName:  user.name,
-            developerEmail: user.email,
-          });
-        } catch (emailErr) {
+        // Send email in background — do NOT await
+        sendDeveloperApprovalEmail({
+          developerId:    String(user._id),
+          developerName:  user.name,
+          developerEmail: user.email,
+        }).catch(emailErr => {
           console.warn('Email notification failed (check EMAIL_PASS in .env):', emailErr.message);
-        }
+        });
 
         return res.status(201).json({
           message: 'Registration successful! Your developer request is pending admin approval. You will receive an email once approved.',
