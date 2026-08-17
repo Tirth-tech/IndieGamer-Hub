@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
+import { getAvatar } from '../utils/textUtils';
 import {
   User, Mail, Lock, Globe, FileText, Camera, Save,
   ShieldCheck, Gamepad2, Code2, Eye, EyeOff, ArrowLeft
@@ -187,7 +188,7 @@ export default function Profile() {
           {/* Avatar with upload overlay */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <img
-              src={form.avatar || user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF6B00&color=fff&size=150&bold=true&format=png`}
+              src={getAvatar(form.avatar || user.avatar, user.name, 150)}
               alt={user.name}
               style={{
                 width: 100, height: 100, borderRadius: '50%',

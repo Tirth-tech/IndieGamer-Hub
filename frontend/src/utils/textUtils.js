@@ -17,3 +17,11 @@ export const stripHtml = (html = '') => {
 // Generate a letter-based avatar URL from a name (first letter initials)
 export const letterAvatar = (name = 'User', size = 150) =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=FF6B00&color=fff&size=${size}&bold=true&format=png`;
+
+// Get the correct avatar: if user has old Unsplash placeholder or empty, use letter avatar
+export const getAvatar = (avatar, name = 'User', size = 150) => {
+  if (!avatar || avatar.includes('unsplash.com')) {
+    return letterAvatar(name, size);
+  }
+  return avatar;
+};

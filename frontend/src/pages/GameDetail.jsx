@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import ScreenshotGallery from '../components/ScreenshotGallery';
 import ForumSection from '../components/ForumSection';
 import { useToast } from '../components/Toast';
-import { stripHtml } from '../utils/textUtils';
+import { stripHtml, getAvatar } from '../utils/textUtils';
 
 export default function GameDetail() {
   const { id } = useParams();
@@ -496,9 +496,10 @@ export default function GameDetail() {
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                           <img
-                            src={rev.userAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80'}
+                            src={getAvatar(rev.userAvatar, rev.userName, 100)}
                             alt={rev.userName}
                             style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }}
+                            onError={e => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(rev.userName)}&background=FF6B00&color=fff&size=100&bold=true&format=png`; }}
                           />
                           <div>
                             <div style={{ fontWeight: 700, color: '#fff', fontSize: '0.9rem' }}>{rev.userName}</div>

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Gamepad2, Search, PlusCircle, ShieldCheck, LogOut, Zap, Globe, Heart, Grid, ChevronDown, Sparkles, Crosshair, Compass, Shield, Tractor, Cpu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { getAvatar } from '../utils/textUtils';
 
 export default function Navbar() {
   const { user, logout, activeCountry, setCountryPref } = useAuth();
@@ -312,7 +313,7 @@ export default function Navbar() {
                 title="Edit Profile"
               >
                 <img
-                  src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF6B00&color=fff&size=100&bold=true&format=png`}
+                  src={getAvatar(user.avatar, user.name, 100)}
                   alt={user.name}
                   style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #FF6B00' }}
                   onError={e => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF6B00&color=fff&size=100&bold=true&format=png`; }}

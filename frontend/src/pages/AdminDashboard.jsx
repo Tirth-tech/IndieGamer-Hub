@@ -4,6 +4,7 @@ import axios from 'axios';
 import { ShieldCheck, Star, Sparkles, MousePointer, DollarSign, RefreshCw, ToggleLeft, ToggleRight, UserCheck, UserX, Clock, Gamepad2, Trash2, User, Camera, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
+import { getAvatar } from '../utils/textUtils';
 
 export default function AdminDashboard() {
   const { user, formatPrice } = useAuth();
@@ -152,7 +153,7 @@ export default function AdminDashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div style={{ position: 'relative' }}>
             <img
-              src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF6B00&color=fff&size=120&bold=true&format=png`}
+              src={getAvatar(user.avatar, user.name, 120)}
               alt={user.name}
               style={{
                 width: 68, height: 68, borderRadius: '50%', objectFit: 'cover',
@@ -256,7 +257,7 @@ export default function AdminDashboard() {
                 flexWrap: 'wrap',
               }}>
                 <img
-                  src={dev.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(dev.name)}&background=FF6B00&color=fff&size=60&bold=true&format=png`}
+                  src={getAvatar(dev.avatar, dev.name, 60)}
                   alt={dev.name}
                   style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid #FFB000' }}
                   onError={e => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(dev.name)}&background=FF6B00&color=fff&size=60&bold=true&format=png`; }}
