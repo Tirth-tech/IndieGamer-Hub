@@ -207,7 +207,7 @@ export default function ForumSection({ gameId, gameTitle }) {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <img
-                      src={post.authorAvatar || 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=100&auto=format&fit=crop&q=80'}
+                      src={post.authorAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.authorName || 'User')}&background=FF6B00&color=fff&size=100&bold=true&format=png`}
                       alt={post.authorName}
                       style={{ width: '28px', height: '28px', borderRadius: '50%' }}
                     />

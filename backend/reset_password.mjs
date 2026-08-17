@@ -31,7 +31,7 @@ async function resetPassword() {
           role: 'admin',
           bio: 'Platform Administrator',
           country: 'India',
-          avatar: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80',
+          avatar: 'https://ui-avatars.com/api/?name=Admin+Tirth&background=FF6B00&color=fff&size=150&bold=true&format=png',
           savedGames: []
         }
       },

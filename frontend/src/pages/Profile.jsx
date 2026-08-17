@@ -195,7 +195,7 @@ export default function Profile() {
                 border: '3px solid #FF6B00',
                 boxShadow: '0 0 20px rgba(255,107,0,0.4)',
               }}
-              onError={e => { e.target.src = 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150'; }}
+              onError={e => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF6B00&color=fff&size=150&bold=true&format=png`; }}
             />
             <button
               onClick={() => fileRef.current?.click()}

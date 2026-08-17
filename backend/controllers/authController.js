@@ -38,13 +38,16 @@ export const register = async (req, res) => {
         pendingRole = 'developer';
       }
 
+      // Generate letter avatar from name if no custom avatar provided
+      const letterAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=FF6B00&color=fff&size=150&bold=true&format=png`;
+
       const user = await User.create({
         name, email, password,
         role: userRole,
         status,
         pendingRole,
         bio:     bio     || 'Passionate game enthusiast.',
-        avatar:  avatar  || 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80',
+        avatar:  avatar  || letterAvatar,
         country: country || 'United States'
       });
 
@@ -104,6 +107,8 @@ export const register = async (req, res) => {
         pendingRole = 'developer';
       }
 
+      const letterAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=FF6B00&color=fff&size=150&bold=true&format=png`;
+
       const newMemUser = {
         _id: 'user_' + Date.now(), id: 'user_' + Date.now(),
         name, email, password,
@@ -111,7 +116,7 @@ export const register = async (req, res) => {
         status,
         pendingRole,
         bio:     bio     || 'User bio.',
-        avatar:  avatar  || 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80',
+        avatar:  avatar  || letterAvatar,
         country: country || 'United States',
         savedGames: []
       };

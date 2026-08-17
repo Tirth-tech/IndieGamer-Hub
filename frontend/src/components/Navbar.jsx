@@ -312,10 +312,10 @@ export default function Navbar() {
                 title="Edit Profile"
               >
                 <img
-                  src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
+                  src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF6B00&color=fff&size=100&bold=true&format=png`}
                   alt={user.name}
                   style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #FF6B00' }}
-                  onError={e => { e.target.src = 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=100'; }}
+                  onError={e => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF6B00&color=fff&size=100&bold=true&format=png`; }}
                 />
                 <div style={{ lineHeight: '1.2' }}>
                   <div style={{ fontSize: '0.82rem', fontWeight: '800', color: '#fff' }}>{user.name}</div>

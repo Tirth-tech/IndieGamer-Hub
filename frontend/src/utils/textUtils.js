@@ -13,3 +13,7 @@ export const stripHtml = (html = '') => {
     .replace(/\s+/g, ' ')                                         // collapse multiple spaces
     .trim();
 };
+
+// Generate a letter-based avatar URL from a name (first letter initials)
+export const letterAvatar = (name = 'User', size = 150) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=FF6B00&color=fff&size=${size}&bold=true&format=png`;

@@ -152,13 +152,13 @@ export default function AdminDashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div style={{ position: 'relative' }}>
             <img
-              src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120'}
+              src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF6B00&color=fff&size=120&bold=true&format=png`}
               alt={user.name}
               style={{
                 width: 68, height: 68, borderRadius: '50%', objectFit: 'cover',
                 border: '3px solid #FF6B00', boxShadow: '0 0 15px rgba(255,107,0,0.4)',
               }}
-              onError={e => { e.target.src = 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=120'; }}
+              onError={e => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF6B00&color=fff&size=120&bold=true&format=png`; }}
             />
             <Link
               to="/profile"
@@ -256,10 +256,10 @@ export default function AdminDashboard() {
                 flexWrap: 'wrap',
               }}>
                 <img
-                  src={dev.avatar || 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=60'}
+                  src={dev.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(dev.name)}&background=FF6B00&color=fff&size=60&bold=true&format=png`}
                   alt={dev.name}
                   style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid #FFB000' }}
-                  onError={e => { e.target.src = 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=60'; }}
+                  onError={e => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(dev.name)}&background=FF6B00&color=fff&size=60&bold=true&format=png`; }}
                 />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 800, color: '#fff', fontSize: '0.95rem' }}>{dev.name}</div>

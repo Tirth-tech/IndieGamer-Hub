@@ -40,7 +40,7 @@ export const seedData = async () => {
       password: 'devpassword123',
       role: 'developer',
       bio: 'Creators of legendary action combat and souls-like experiences.',
-      avatar: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80',
+      avatar: 'https://ui-avatars.com/api/?name=CAPCOM+FromSoftware&background=FF6B00&color=fff&size=150&bold=true&format=png',
       country: 'United Kingdom'
     });
 
