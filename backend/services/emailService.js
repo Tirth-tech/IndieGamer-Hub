@@ -103,8 +103,9 @@ export const sendDeveloperApprovalEmail = async ({ developerId, developerName, d
 
 // ── Notify developer of approval result ─────────────────────────────────────
 export const sendApprovalResultEmail = async ({ developerEmail, developerName, approved }) => {
-  const loginUrl = `${process.env.BASE_URL?.replace('5000','3000') || 'http://localhost:3000'}/login`;
-  const homeUrl = `${process.env.BASE_URL?.replace('5000','3000') || 'http://localhost:3000'}/`;
+  const frontendUrl = process.env.FRONTEND_URL || 'https://indie-gamer-hub.vercel.app';
+  const loginUrl = `${frontendUrl}/login`;
+  const homeUrl = `${frontendUrl}/`;
 
   const html = approved ? `
     <!DOCTYPE html>
@@ -174,7 +175,8 @@ export const sendApprovalResultEmail = async ({ developerEmail, developerName, a
 
 // ── Notify developer when their submitted game is approved or rejected by admin ──
 export const sendGameApprovalResultEmail = async ({ developerEmail, developerName, gameTitle, approved, gameId }) => {
-  const catalogUrl = `${process.env.BASE_URL?.replace('5000','3000') || 'http://localhost:3000'}/game/${gameId}`;
+  const frontendUrl = process.env.FRONTEND_URL || 'https://indie-gamer-hub.vercel.app';
+  const catalogUrl = `${frontendUrl}/game/${gameId}`;
 
   const html = approved ? `
     <!DOCTYPE html>
