@@ -4,6 +4,14 @@ import * as memoryStore from '../config/memoryStore.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'indiegamerhub_super_secret_jwt_key_2026';
 
+// Single authorized admin email — must match authController.js
+const isAuthorizedAdmin = (email) => {
+  const e = (email || '').toLowerCase().trim();
+  return e === 'tirthkapuriya18@gmail.com' ||
+         e === 'tirthkapuriya18@gamil.com' ||
+         (process.env.ADMIN_EMAIL && e === process.env.ADMIN_EMAIL.toLowerCase());
+};
+
 export const protect = async (req, res, next) => {
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -36,6 +44,15 @@ export const protect = async (req, res, next) => {
       } else {
         return res.status(401).json({ error: 'User not found in memory store fallback' });
       }
+    }
+
+    // ── ENFORCE single-admin: strip admin from unauthorized emails on EVERY request ──
+    if (req.user && req.user.role === 'admin' && !isAuthorizedAdmin(req.user.email)) {
+      req.user.role = 'gamer';
+      // Persist demotion in DB if possible
+      try {
+        await User.findByIdAndUpdate(req.user._id || req.user.id, { role: 'gamer' });
+      } catch (_) { /* memory store fallback — already set above */ }
     }
 
     next();

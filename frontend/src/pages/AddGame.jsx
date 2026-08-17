@@ -29,7 +29,7 @@ export default function AddGame() {
           <div style={{ background: 'rgba(0, 255, 102, 0.05)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(0, 255, 102, 0.15)', marginBottom: '20px' }}>
             <h4 style={{ color: '#fff', fontSize: '0.9rem', marginBottom: '6px' }}>🔑 Admin Access</h4>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-              The lead platform administrator is <strong>Tirth Kapuriya (tirthkapuriya@gmail.com)</strong>. If you are the admin, please log in using the admin account credentials.
+              The lead platform administrator is <strong>Admin Tirth (tirthkapuriya18@gmail.com)</strong>. If you are the admin, please log in using the admin account credentials.
             </p>
           </div>
 

@@ -3,14 +3,20 @@ import { generateToken } from '../middleware/auth.js';
 import * as memoryStore from '../config/memoryStore.js';
 import { sendDeveloperApprovalEmail, sendApprovalResultEmail } from '../services/emailService.js';
 
+// ── Single authorized admin email ────────────────────────────────────────────
+const isAuthorizedAdmin = (email) => {
+  const e = email.toLowerCase().trim();
+  return e === 'tirthkapuriya18@gmail.com' ||
+         e === 'tirthkapuriya18@gamil.com' ||
+         (process.env.ADMIN_EMAIL && e === process.env.ADMIN_EMAIL.toLowerCase());
+};
+
 // @route   POST /api/auth/register
 export const register = async (req, res) => {
   try {
     const { name, email, password, role, bio, avatar, country } = req.body;
 
-    const isAdminEmail = email.toLowerCase() === 'tirthkapuriya18@gmail.com' ||
-                         email.toLowerCase() === 'tirthkapuriya18@gamil.com' ||
-                         (process.env.ADMIN_EMAIL && email.toLowerCase() === process.env.ADMIN_EMAIL.toLowerCase());
+    const isAdmin = isAuthorizedAdmin(email);
 
     try {
       const existingUser = await User.findOne({ email });
@@ -23,7 +29,7 @@ export const register = async (req, res) => {
       let status   = 'approved';
       let pendingRole = null;
 
-      if (isAdminEmail) {
+      if (isAdmin) {
         userRole = 'admin';
       } else if (role === 'developer') {
         // Developers start as gamer with pending status until admin approves
@@ -89,7 +95,7 @@ export const register = async (req, res) => {
       let status   = 'approved';
       let pendingRole = null;
 
-      if (isAdminEmail) {
+      if (isAdmin) {
         userRole = 'admin';
       } else if (role === 'developer') {
         userRole    = 'gamer';
@@ -288,6 +294,13 @@ export const login = async (req, res) => {
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
         return res.status(401).json({ error: 'Invalid email or password' });
+      }
+
+      // ── ENFORCE single-admin: strip admin from unauthorized emails ──
+      if (user.role === 'admin' && !isAuthorizedAdmin(user.email)) {
+        user.role = 'gamer';
+        await user.save();
+        console.log(`⚠️ Stripped admin role from unauthorized email: ${user.email}`);
       }
 
       if (user.status === 'pending') {

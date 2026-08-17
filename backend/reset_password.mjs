@@ -22,12 +22,12 @@ async function resetPassword() {
     const hashed = await bcrypt.hash(newPassword, salt);
 
     const result = await User.findOneAndUpdate(
-      { email: 'tirthkapuriya@gmail.com' },
+      { email: 'tirthkapuriya18@gmail.com' },
       {
         $set: {
           password: hashed,
-          name: 'Tirth Kapuriya',
-          email: 'tirthkapuriya@gmail.com',
+          name: 'Admin Tirth',
+          email: 'tirthkapuriya18@gmail.com',
           role: 'admin',
           bio: 'Platform Administrator',
           country: 'India',
@@ -39,7 +39,7 @@ async function resetPassword() {
     );
 
     console.log('✅ Admin account ready!');
-    console.log('   Email   : tirthkapuriya@gmail.com');
+    console.log('   Email   : tirthkapuriya18@gmail.com');
     console.log('   Password: asha15');
     console.log('   Role    : admin');
   } catch (err) {
