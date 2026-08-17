@@ -36,7 +36,20 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     service: 'IndieGamer Hub API',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    env: {
+      has_email_user: !!process.env.EMAIL_USER,
+      email_user: process.env.EMAIL_USER || '',
+      has_email_pass: !!process.env.EMAIL_PASS,
+      email_pass_len: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0,
+      has_mongodb_uri: !!process.env.MONGODB_URI,
+      has_frontend_url: !!process.env.FRONTEND_URL,
+      frontend_url: process.env.FRONTEND_URL || 'not set',
+      has_base_url: !!process.env.BASE_URL,
+      base_url: process.env.BASE_URL || 'not set',
+      has_admin_email: !!process.env.ADMIN_EMAIL,
+      admin_email: process.env.ADMIN_EMAIL || 'not set',
+    }
   });
 });
 
