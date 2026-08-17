@@ -187,7 +187,7 @@ export default function Profile() {
           {/* Avatar with upload overlay */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <img
-              src={form.avatar || user.avatar}
+              src={form.avatar || user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF6B00&color=fff&size=150&bold=true&format=png`}
               alt={user.name}
               style={{
                 width: 100, height: 100, borderRadius: '50%',
