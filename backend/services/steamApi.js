@@ -323,20 +323,20 @@ const POPULAR_STEAM_FALLBACKS = {
     developerName: 'Digital Extremes',
     storeLinks: [{ store: 'Steam', url: 'https://store.steampowered.com/app/230410/Warframe/' }]
   },
-  '440': {
-    title: 'Team Fortress 2',
-    description: 'Nine distinct classes provide a broad range of tactical abilities and personalities. Constantly updated with new game modes, maps, equipment and, most importantly, hats!',
-    shortDescription: 'Class-based tactical FPS classic. 100% Free to play.',
-    genre: ['Free to Play', 'FPS', 'Multiplayer', 'Action', 'Comedy'],
-    releaseDate: 'Oct 10, 2007',
+  '3564740': {
+    title: 'Where Winds Meet',
+    description: 'Where Winds Meet is an epic Wuxia open-world action RPG set in ancient China during the Five Dynasties and Ten Kingdoms period. Master martial arts, swordplay, and ancient magic in a living world.',
+    shortDescription: 'Open-world Wuxia martial arts action RPG set in ancient China. Free to play on Steam.',
+    genre: ['Free to Play', 'Action', 'RPG', 'Adventure', 'Open World', 'Martial Arts', 'Single-player', 'Multi-player'],
+    releaseDate: 'Nov 14, 2025',
     price: 0,
-    headerImage: 'https://cdn.cloudflare.steamstatic.com/steam/apps/440/header.jpg',
+    headerImage: 'https://cdn.cloudflare.steamstatic.com/steam/apps/3564740/header.jpg',
     screenshots: [
-      'https://cdn.cloudflare.steamstatic.com/steam/apps/440/ss_10b42f618a8b1390f1f13b194d9ed758a032ec4d.1920x1080.jpg'
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/3564740/ss_8d4b31a31d2fb7c8ef4a779148d45f448c909e7c.1920x1080.jpg'
     ],
-    trailerUrl: 'https://www.youtube.com/watch?v=h_c3iQImWHg',
-    developerName: 'Valve',
-    storeLinks: [{ store: 'Steam', url: 'https://store.steampowered.com/app/440/Team_Fortress_2/' }]
+    trailerUrl: 'https://www.youtube.com/watch?v=pnSStRj0O1E',
+    developerName: 'Everstone Studio',
+    storeLinks: [{ store: 'Steam', url: 'https://store.steampowered.com/app/3564740/Where_Winds_Meet/' }]
   }
 };
 
@@ -400,7 +400,7 @@ export const fetchSteamGameData = async (appId) => {
     }
     if (Array.isArray(game.categories)) {
       game.categories.forEach(c => {
-        if (['Single-player', 'Multi-player', 'Co-op', 'PvP', 'Online Co-op'].includes(c.description)) {
+        if (['Single-player', 'Multi-player', 'Co-op', 'PvP', 'Online Co-op', 'Cross-Platform Multiplayer'].includes(c.description)) {
           if (!genres.includes(c.description)) genres.push(c.description);
         }
       });
@@ -408,7 +408,7 @@ export const fetchSteamGameData = async (appId) => {
     if (game.is_free && !genres.includes('Free to Play')) {
       genres.unshift('Free to Play');
     }
-    if (genres.length === 0) genres = ['Action', 'Indie'];
+    if (genres.length === 0) genres = ['Action', 'Free to Play', 'Open World'];
 
     const screenshots = Array.isArray(game.screenshots) ? game.screenshots.map(s => s.path_full) : [game.header_image];
 
@@ -432,16 +432,16 @@ export const fetchSteamGameData = async (appId) => {
   } catch (error) {
     return {
       steamAppId: cleanAppId,
-      title: `Indie Game (App ${cleanAppId})`,
-      description: `Imported indie game metadata for Steam App ID ${cleanAppId}.`,
-      shortDescription: `Indie game imported via Steam App ID ${cleanAppId}.`,
-      genre: ['Action', 'Indie'],
+      title: `PC Game (App ${cleanAppId})`,
+      description: `Imported metadata for Steam App ID ${cleanAppId}.`,
+      shortDescription: `PC Game imported via Steam App ID ${cleanAppId}.`,
+      genre: ['Free to Play', 'Action', 'RPG', 'Open World'],
       releaseDate: 'Available Now',
-      price: 14.99,
-      headerImage: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80',
-      screenshots: ['https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&auto=format&fit=crop&q=80'],
+      price: 0,
+      headerImage: `https://cdn.cloudflare.steamstatic.com/steam/apps/${cleanAppId}/header.jpg`,
+      screenshots: [`https://cdn.cloudflare.steamstatic.com/steam/apps/${cleanAppId}/ss_8d4b31a31d2fb7c8ef4a779148d45f448c909e7c.1920x1080.jpg`],
       trailerUrl: '',
-      developerName: 'Indie Studio',
+      developerName: 'Game Studio',
       storeLinks: [{ store: 'Steam', url: `https://store.steampowered.com/app/${cleanAppId}/` }]
     };
   }

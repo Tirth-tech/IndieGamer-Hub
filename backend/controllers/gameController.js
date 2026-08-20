@@ -20,12 +20,12 @@ export const previewSteamGame = async (req, res) => {
     res.json({
       success: true,
       game: {
-        title: `Indie Game (${req.params.appId || 'Steam'})`,
-        description: 'Auto-filled game details.',
-        price: 14.99,
-        genre: ['Indie', 'Action'],
-        developerName: req.user?.username || 'Indie Developer',
-        headerImage: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80'
+        title: `PC Game (App ${req.params.appId || 'Steam'})`,
+        description: 'Auto-filled game metadata.',
+        price: 0,
+        genre: ['Free to Play', 'Action', 'Open World'],
+        developerName: req.user?.name || 'Game Developer Studio',
+        headerImage: `https://cdn.cloudflare.steamstatic.com/steam/apps/${req.params.appId || '367520'}/header.jpg`
       }
     });
   }
