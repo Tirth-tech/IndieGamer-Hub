@@ -261,7 +261,7 @@ const POPULAR_STEAM_FALLBACKS = {
     trailerUrl: 'https://www.youtube.com/watch?v=xlTuC181yto',
     developerName: 'SCS Software',
     storeLinks: [{ store: 'Steam', url: 'https://store.steampowered.com/app/227300/Euro_Truck_Simulator_2/' }]
-  }
+  },
   // --- FREE TO PLAY POPULAR GAMES ---
   '730': {
     title: 'Counter-Strike 2',
