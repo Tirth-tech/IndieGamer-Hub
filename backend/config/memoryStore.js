@@ -6,7 +6,8 @@ export const users = [
     email: 'tirthkapuriya18@gmail.com',
     password: 'asha15',
     role: 'admin',
-    avatar: 'https://ui-avatars.com/api/?name=Admin+Tirth&background=FF6B00&color=fff&size=150&bold=true&format=png',
+    status: 'approved',
+    avatar: '',
     bio: 'Platform Administrator',
     country: 'India'
   },
@@ -15,7 +16,8 @@ export const users = [
     name: 'CAPCOM & FromSoftware',
     email: 'dev@capcom.com',
     role: 'developer',
-    avatar: 'https://ui-avatars.com/api/?name=CAPCOM+FromSoftware&background=FF6B00&color=fff&size=150&bold=true&format=png',
+    status: 'approved',
+    avatar: '',
     bio: 'Action game creators.',
     country: 'United Kingdom'
   },
@@ -24,7 +26,8 @@ export const users = [
     name: 'MatrixGamer_99',
     email: 'alex@gamer.com',
     role: 'gamer',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    status: 'approved',
+    avatar: '',
     bio: 'Action speedrunner.',
     country: 'United States'
   }
