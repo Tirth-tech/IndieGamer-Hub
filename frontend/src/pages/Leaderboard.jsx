@@ -43,7 +43,7 @@ export default function Leaderboard() {
 
   const totalMembers = counts.admin + counts.developer + counts.gamer;
 
-  const statCard = (title, count, icon: any, color) => (
+  const statCard = (title, count, icon, color) => (
     <div className="glass-card" style={{
       padding: '20px',
       flex: 1,
@@ -179,7 +179,7 @@ export default function Leaderboard() {
                   const globalIndex = users.findIndex(u => u._id === member._id) + 1;
 
                   // Custom visual for Top 3
-                  let rankDisplay: any = `#${globalIndex}`;
+                  let rankDisplay = `#${globalIndex}`;
                   if (globalIndex === 1) rankDisplay = <span style={{ fontSize: '1.3rem' }} title="Pioneer Champion">🥇</span>;
                   else if (globalIndex === 2) rankDisplay = <span style={{ fontSize: '1.3rem' }}>🥈</span>;
                   else if (globalIndex === 3) rankDisplay = <span style={{ fontSize: '1.3rem' }}>🥉</span>;
