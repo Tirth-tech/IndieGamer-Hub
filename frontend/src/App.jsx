@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Wishlist from './pages/Wishlist';
 import Profile from './pages/Profile';
+import Leaderboard from './pages/Leaderboard';
 
 function AppContent() {
   const location = useLocation();
@@ -76,6 +77,7 @@ function AppContent() {
           <Route path="/register" element={<Register />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
         </Routes>
       </main>
       <Footer />

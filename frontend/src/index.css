@@ -439,3 +439,18 @@ body {
   }
 }
 
+/* Live Search Dropdown Styles */
+.search-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+.search-dropdown::-webkit-scrollbar-track {
+  background: rgba(15, 12, 9, 0.98);
+}
+.search-dropdown::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+.search-result-item:hover {
+  background: rgba(255, 107, 0, 0.15) !important;
+}
+

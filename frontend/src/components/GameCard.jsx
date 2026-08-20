@@ -210,6 +210,20 @@ export default function GameCard({ game }) {
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
                   ({game.reviewCount || 0})
                 </span>
+                {game.hoursPlayed > 0 && (
+                  <span style={{
+                    fontSize: '0.72rem',
+                    color: 'var(--primary-green)',
+                    marginLeft: '8px',
+                    background: 'rgba(255, 107, 0, 0.1)',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    fontWeight: 800,
+                    border: '1px solid rgba(255, 107, 0, 0.2)'
+                  }}>
+                    ⏱ {game.hoursPlayed} hrs
+                  </span>
+                )}
               </div>
 
               {!isHovered && (

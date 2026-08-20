@@ -47,7 +47,7 @@ export const register = async (req, res) => {
         status,
         pendingRole,
         bio:     bio     || 'Passionate game enthusiast.',
-        avatar:  avatar  || letterAvatar,
+        avatar:  avatar  || '',
         country: country || 'United States'
       });
 
@@ -116,7 +116,7 @@ export const register = async (req, res) => {
         status,
         pendingRole,
         bio:     bio     || 'User bio.',
-        avatar:  avatar  || letterAvatar,
+        avatar:  avatar  || '',
         country: country || 'United States',
         savedGames: []
       };

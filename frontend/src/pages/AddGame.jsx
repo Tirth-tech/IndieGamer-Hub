@@ -69,6 +69,7 @@ export default function AddGame() {
   const [screenshotsInput, setScreenshotsInput] = useState('');
   const [trailerUrl, setTrailerUrl] = useState('');
   const [developerName, setDeveloperName] = useState(user?.name || '');
+  const [hoursPlayed, setHoursPlayed] = useState('0');
   const [submitting, setSubmitting] = useState(false);
 
   // Handle auto-fill sync from Steam App ID or Epic Games Slug
@@ -187,7 +188,8 @@ export default function AddGame() {
             store: storeName,
             url: storeUrl
           }
-        ]
+        ],
+        hoursPlayed: parseFloat(hoursPlayed) || 0
       };
 
       const res = await axios.post('/api/games', payload);
@@ -379,7 +381,7 @@ export default function AddGame() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             <div>
               <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
                 Genres (comma separated)
@@ -402,6 +404,19 @@ export default function AddGame() {
                 placeholder="Feb 24, 2017"
                 value={releaseDate}
                 onChange={(e) => setReleaseDate(e.target.value)}
+                className="input-field"
+              />
+            </div>
+
+            <div>
+              <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                Average Playtime (Hours)
+              </label>
+              <input
+                type="number"
+                placeholder="40"
+                value={hoursPlayed}
+                onChange={(e) => setHoursPlayed(e.target.value)}
                 className="input-field"
               />
             </div>

@@ -1,14 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Gamepad2, Search, PlusCircle, ShieldCheck, LogOut, Zap, Globe, Heart, Grid, ChevronDown, Sparkles, Crosshair, Compass, Shield, Tractor, Cpu } from 'lucide-react';
+import axios from 'axios';
+import { Gamepad2, Search, PlusCircle, ShieldCheck, LogOut, Zap, Globe, Heart, Grid, ChevronDown, Sparkles, Crosshair, Compass, Shield, Tractor, Cpu, Trophy } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { getAvatar } from '../utils/textUtils';
+import { getAvatar, letterAvatar } from '../utils/textUtils';
 
 export default function Navbar() {
   const { user, logout, activeCountry, setCountryPref } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const searchContainerRef = useRef(null);
   const navigate = useNavigate();
 
   const handleSearchSubmit = (e) => {
@@ -16,6 +21,7 @@ export default function Navbar() {
     if (searchQuery.trim()) {
       navigate(`/catalog?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
+      setShowDropdown(false);
     }
   };
 
@@ -25,10 +31,37 @@ export default function Navbar() {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsCategoryMenuOpen(false);
       }
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Debounced search query effect
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setSearchLoading(true);
+      setShowDropdown(true);
+      try {
+        const res = await axios.get(`/api/games?search=${encodeURIComponent(searchQuery.trim())}&limit=6`);
+        setSearchResults(res.data.games || []);
+      } catch (err) {
+        console.error('Live search failed:', err);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
   const handleCategorySelect = (genre) => {
     setIsCategoryMenuOpen(false);
@@ -97,16 +130,107 @@ export default function Navbar() {
         </Link>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearchSubmit} style={{ position: 'relative', flex: 1, maxWidth: '400px', minWidth: '240px' }}>
-          <Search size={18} color="var(--text-dim)" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+        <form onSubmit={handleSearchSubmit} ref={searchContainerRef} style={{ position: 'relative', flex: 1, maxWidth: '400px', minWidth: '240px' }}>
+          <Search size={18} color="var(--text-dim)" style={{ position: 'absolute', left: '14px', top: '20px', transform: 'translateY(-50%)' }} />
           <input
             type="text"
             placeholder="Search action, cozy, strategy games..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => { if (searchQuery.trim()) setShowDropdown(true); }}
             className="input-field"
             style={{ paddingLeft: '42px', height: '40px', fontSize: '0.88rem' }}
           />
+
+          {/* Live Search dropdown */}
+          {showDropdown && searchQuery.trim() && (
+            <div className="search-dropdown" style={{
+              position: 'absolute',
+              top: 'calc(100% + 8px)',
+              left: 0,
+              right: 0,
+              background: 'rgba(15, 12, 9, 0.98)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius-md)',
+              boxShadow: 'var(--shadow-green-lg)',
+              maxHeight: '350px',
+              overflowY: 'auto',
+              zIndex: 1000,
+              padding: '8px 0'
+            }}>
+              {searchLoading ? (
+                <div style={{ padding: '16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                  Searching games...
+                </div>
+              ) : searchResults.length === 0 ? (
+                <div style={{ padding: '16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                  No games found
+                </div>
+              ) : (
+                searchResults.map(game => (
+                  <div
+                    key={game._id}
+                    onClick={() => {
+                      navigate(`/game/${game._id}`);
+                      setSearchQuery('');
+                      setShowDropdown(false);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '10px 16px',
+                      cursor: 'pointer',
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                      transition: 'background 0.2s ease'
+                    }}
+                    className="search-result-item"
+                  >
+                    <img
+                      src={game.headerImage}
+                      alt={game.title}
+                      style={{
+                        width: '50px',
+                        height: '30px',
+                        objectFit: 'cover',
+                        borderRadius: '4px',
+                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                      }}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontSize: '0.88rem',
+                        fontWeight: '800',
+                        color: '#fff',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}>
+                        {game.title}
+                      </div>
+                      <div style={{
+                        fontSize: '0.72rem',
+                        color: 'var(--text-muted)',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}>
+                        {game.developerName} · {game.genre?.slice(0, 2).join(', ')}
+                      </div>
+                    </div>
+                    <div style={{
+                      fontSize: '0.8rem',
+                      fontWeight: '800',
+                      color: game.price === 0 ? '#39FF88' : '#FFB000'
+                    }}>
+                      {game.price === 0 ? 'FREE' : `$${game.price}`}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </form>
 
         {/* Navigation Links */}
@@ -242,6 +366,10 @@ export default function Navbar() {
             <Zap size={16} color="var(--primary-green)" /> Explore Catalog
           </Link>
 
+          <Link to="/leaderboard" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-main)', fontWeight: 700, fontSize: '0.9rem' }}>
+            <Trophy size={16} color="var(--primary-green)" /> Leaderboard
+          </Link>
+
           {(!user || user?.role === 'gamer') && (
             <Link to="/wishlist" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-main)', fontWeight: 700, fontSize: '0.9rem' }}>
               <Heart size={16} color="var(--primary-magenta)" fill="var(--primary-magenta)" /> Wishlist
@@ -316,7 +444,7 @@ export default function Navbar() {
                   src={getAvatar(user.avatar, user.name, 100)}
                   alt={user.name}
                   style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #FF6B00' }}
-                  onError={e => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF6B00&color=fff&size=100&bold=true&format=png`; }}
+                  onError={e => { e.target.src = letterAvatar(user.name, 100); }}
                 />
                 <div style={{ lineHeight: '1.2' }}>
                   <div style={{ fontSize: '0.82rem', fontWeight: '800', color: '#fff' }}>{user.name}</div>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
-import { getAvatar } from '../utils/textUtils';
+import { getAvatar, letterAvatar } from '../utils/textUtils';
 import {
   User, Mail, Lock, Globe, FileText, Camera, Save,
   ShieldCheck, Gamepad2, Code2, Eye, EyeOff, ArrowLeft
@@ -196,7 +196,7 @@ export default function Profile() {
                 border: '3px solid #FF6B00',
                 boxShadow: '0 0 20px rgba(255,107,0,0.4)',
               }}
-              onError={e => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=FF6B00&color=fff&size=150&bold=true&format=png`; }}
+              onError={e => { e.target.src = letterAvatar(user.name, 150); }}
             />
             <button
               onClick={() => fileRef.current?.click()}

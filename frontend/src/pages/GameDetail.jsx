@@ -40,6 +40,7 @@ export default function GameDetail() {
   const [editTrailerUrl, setEditTrailerUrl] = useState('');
   const [editSteamAppId, setEditSteamAppId] = useState('');
   const [editEpicSlug, setEditEpicSlug] = useState('');
+  const [editHoursPlayed, setEditHoursPlayed] = useState('0');
 
   const handleOpenEdit = () => {
     setEditTitle(game.title || '');
@@ -52,6 +53,7 @@ export default function GameDetail() {
     setEditScreenshotsInput(game.screenshots ? game.screenshots.join('\n') : '');
     setEditTrailerUrl(game.trailerUrl || '');
     setEditSteamAppId(game.steamAppId || '');
+    setEditHoursPlayed(game.hoursPlayed !== undefined ? String(game.hoursPlayed) : '0');
 
     const epicLink = game.storeLinks?.find(l => l.store === 'Epic Games');
     if (epicLink) {
@@ -97,7 +99,8 @@ export default function GameDetail() {
         screenshots: screenshotsArray,
         trailerUrl: editTrailerUrl,
         steamAppId: editSteamAppId.trim(),
-        storeLinks: storeLinksArray
+        storeLinks: storeLinksArray,
+        hoursPlayed: parseFloat(editHoursPlayed) || 0
       };
 
       const res = await axios.put(`/api/games/${game._id}`, payload);
@@ -238,6 +241,14 @@ export default function GameDetail() {
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Calendar size={14} /> Released: {game.releaseDate}
             </div>
+            {game.hoursPlayed > 0 && (
+              <>
+                <span style={{ color: 'var(--text-dim)' }}>•</span>
+                <div style={{ fontSize: '0.85rem', color: 'var(--primary-green)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' }}>
+                  <span>⏱ Average Playtime: {game.hoursPlayed} Hours</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -728,7 +739,7 @@ export default function GameDetail() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
                 <div>
                   <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
                     Steam App ID (optional)
@@ -750,6 +761,18 @@ export default function GameDetail() {
                     value={editEpicSlug}
                     onChange={(e) => setEditEpicSlug(e.target.value)}
                     placeholder="e.g. fortnite"
+                    className="input-field"
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                    Average Playtime (hours)
+                  </label>
+                  <input
+                    type="number"
+                    value={editHoursPlayed}
+                    onChange={(e) => setEditHoursPlayed(e.target.value)}
+                    placeholder="e.g. 45"
                     className="input-field"
                   />
                 </div>

@@ -10,6 +10,8 @@ import gameRoutes from './routes/gameRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import forumRoutes from './routes/forumRoutes.js';
 import affiliateRoutes from './routes/affiliateRoutes.js';
+import contentRoutes from './routes/contentRoutes.js';
+import leaderboardRoutes from './routes/leaderboardRoutes.js';
 
 dotenv.config();
 
@@ -30,6 +32,8 @@ app.use('/api/games', gameRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/forums', forumRoutes);
 app.use('/api/affiliate', affiliateRoutes);
+app.use('/api/content', contentRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

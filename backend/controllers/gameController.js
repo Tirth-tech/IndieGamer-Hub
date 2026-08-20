@@ -83,7 +83,8 @@ export const createGame = async (req, res) => {
       screenshots,
       trailerUrl,
       storeLinks,
-      developerName
+      developerName,
+      hoursPlayed
     } = req.body;
 
     // Admin submissions are auto-approved; Developer submissions require Admin approval
@@ -106,7 +107,8 @@ export const createGame = async (req, res) => {
       storeLinks: Array.isArray(storeLinks) ? storeLinks : [],
       developerId: req.user?._id || 'user_dev_1',
       developerName: developerName || req.user?.name || 'Indie Studio',
-      approvalStatus
+      approvalStatus,
+      hoursPlayed: hoursPlayed !== undefined ? Number(hoursPlayed) : 0
     };
 
     try {
