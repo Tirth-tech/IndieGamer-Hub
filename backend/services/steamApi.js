@@ -262,6 +262,82 @@ const POPULAR_STEAM_FALLBACKS = {
     developerName: 'SCS Software',
     storeLinks: [{ store: 'Steam', url: 'https://store.steampowered.com/app/227300/Euro_Truck_Simulator_2/' }]
   }
+  // --- FREE TO PLAY POPULAR GAMES ---
+  '730': {
+    title: 'Counter-Strike 2',
+    description: 'For over two decades, Counter-Strike has offered an elite competitive experience, one shaped by millions of players from across the globe. Now the next chapter in the CS saga begins with Counter-Strike 2.',
+    shortDescription: 'The next chapter of the legendary tactical FPS. Free to play on Steam.',
+    genre: ['Free to Play', 'FPS', 'Action', 'Multiplayer', 'Competitive', 'PvP'],
+    releaseDate: 'Sep 27, 2023',
+    price: 0,
+    headerImage: 'https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg',
+    screenshots: [
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/730/ss_e154f9d0c279c6d70d742512a8327ec21ff7c244.1920x1080.jpg'
+    ],
+    trailerUrl: 'https://www.youtube.com/watch?v=c80dVYzo6aU',
+    developerName: 'Valve',
+    storeLinks: [{ store: 'Steam', url: 'https://store.steampowered.com/app/730/CounterStrike_2/' }]
+  },
+  '570': {
+    title: 'Dota 2',
+    description: 'Every day, millions of players worldwide enter battle as one of over a hundred Dota heroes. And no matter if it\'s their 10th hour of play or 1,000th, there\'s always something new to discover.',
+    shortDescription: 'The most deep and strategic action RTS MOBA. 100% Free to Play.',
+    genre: ['Free to Play', 'MOBA', 'Strategy', 'Multiplayer', 'PvP', 'Esports'],
+    releaseDate: 'Jul 9, 2013',
+    price: 0,
+    headerImage: 'https://cdn.cloudflare.steamstatic.com/steam/apps/570/header.jpg',
+    screenshots: [
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/570/ss_874102d4f20bf8fb827e85c133a8c17a9446d328.1920x1080.jpg'
+    ],
+    trailerUrl: 'https://www.youtube.com/watch?v=-cSFPIwMEq4',
+    developerName: 'Valve',
+    storeLinks: [{ store: 'Steam', url: 'https://store.steampowered.com/app/570/Dota_2/' }]
+  },
+  '1172470': {
+    title: 'Apex Legends',
+    description: 'Conquer with character in Apex Legends, a free-to-play Hero shooter where legendary characters with powerful abilities team up to battle for fame & fortune on the fringes of the Frontier.',
+    shortDescription: 'Fast-paced squad-based Hero battle royale shooter.',
+    genre: ['Free to Play', 'Battle Royale', 'FPS', 'Hero Shooter', 'Multiplayer'],
+    releaseDate: 'Nov 4, 2020',
+    price: 0,
+    headerImage: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1172470/header.jpg',
+    screenshots: [
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/1172470/ss_b84bbcf28c464a66a1e35a96db45a16d55734bc2.1920x1080.jpg'
+    ],
+    trailerUrl: 'https://www.youtube.com/watch?v=o33mRBrK42M',
+    developerName: 'Respawn Entertainment',
+    storeLinks: [{ store: 'Steam', url: 'https://store.steampowered.com/app/1172470/Apex_Legends/' }]
+  },
+  '230410': {
+    title: 'Warframe',
+    description: 'Awaken as an unstoppable warrior and battle alongside your friends in this story-driven free-to-play online action game.',
+    shortDescription: 'Fast-paced ninja action shooter with endless gear customization. Free to play.',
+    genre: ['Free to Play', 'Action', 'Looter Shooter', 'Co-op', 'Sci-Fi'],
+    releaseDate: 'Mar 25, 2013',
+    price: 0,
+    headerImage: 'https://cdn.cloudflare.steamstatic.com/steam/apps/230410/header.jpg',
+    screenshots: [
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/230410/ss_2f9b8c04e259e875150937a3c3e669ad982bcae2.1920x1080.jpg'
+    ],
+    trailerUrl: 'https://www.youtube.com/watch?v=FkklG9MA0hs',
+    developerName: 'Digital Extremes',
+    storeLinks: [{ store: 'Steam', url: 'https://store.steampowered.com/app/230410/Warframe/' }]
+  },
+  '440': {
+    title: 'Team Fortress 2',
+    description: 'Nine distinct classes provide a broad range of tactical abilities and personalities. Constantly updated with new game modes, maps, equipment and, most importantly, hats!',
+    shortDescription: 'Class-based tactical FPS classic. 100% Free to play.',
+    genre: ['Free to Play', 'FPS', 'Multiplayer', 'Action', 'Comedy'],
+    releaseDate: 'Oct 10, 2007',
+    price: 0,
+    headerImage: 'https://cdn.cloudflare.steamstatic.com/steam/apps/440/header.jpg',
+    screenshots: [
+      'https://cdn.cloudflare.steamstatic.com/steam/apps/440/ss_10b42f618a8b1390f1f13b194d9ed758a032ec4d.1920x1080.jpg'
+    ],
+    trailerUrl: 'https://www.youtube.com/watch?v=h_c3iQImWHg',
+    developerName: 'Valve',
+    storeLinks: [{ store: 'Steam', url: 'https://store.steampowered.com/app/440/Team_Fortress_2/' }]
+  }
 };
 
 export const stripHtml = (text = '') => {
@@ -312,9 +388,28 @@ export const fetchSteamGameData = async (appId) => {
 
     const game = data.data;
     let price = 0;
-    if (game.price_overview) price = game.price_overview.final / 100;
+    if (game.is_free) {
+      price = 0;
+    } else if (game.price_overview) {
+      price = game.price_overview.final / 100;
+    }
 
-    const genres = Array.isArray(game.genres) ? game.genres.map(g => g.description) : ['Action'];
+    let genres = [];
+    if (Array.isArray(game.genres)) {
+      genres.push(...game.genres.map(g => g.description));
+    }
+    if (Array.isArray(game.categories)) {
+      game.categories.forEach(c => {
+        if (['Single-player', 'Multi-player', 'Co-op', 'PvP', 'Online Co-op'].includes(c.description)) {
+          if (!genres.includes(c.description)) genres.push(c.description);
+        }
+      });
+    }
+    if (game.is_free && !genres.includes('Free to Play')) {
+      genres.unshift('Free to Play');
+    }
+    if (genres.length === 0) genres = ['Action', 'Indie'];
+
     const screenshots = Array.isArray(game.screenshots) ? game.screenshots.map(s => s.path_full) : [game.header_image];
 
     const rawDesc = game.detailed_description || game.short_description || 'No description.';

@@ -92,7 +92,7 @@ export default function AddGame() {
           setDescription(stripHtml(game.description || `Imported game metadata for Steam App ID ${cleanId}.`));
           setGenreInput(game.genre ? game.genre.join(', ') : 'Action, Simulation, Indie');
           setReleaseDate(game.releaseDate || 'Available Now');
-          setPrice(game.price !== undefined ? String(game.price) : '14.99');
+          setPrice(game.price !== undefined ? String(game.price) : '0');
           setHeaderImage(game.headerImage || `https://cdn.cloudflare.steamstatic.com/steam/apps/${cleanId}/header.jpg`);
           setScreenshotsInput(game.screenshots && game.screenshots.length > 0 ? game.screenshots.join('\n') : `https://cdn.cloudflare.steamstatic.com/steam/apps/${cleanId}/ss_6c024d271f76cf61771965701a5518b0821d3f9b.1920x1080.jpg`);
           setTrailerUrl(game.trailerUrl || '');
@@ -132,7 +132,7 @@ export default function AddGame() {
           setDescription(stripHtml(game.description || `Epic Games Store metadata for ${cleanSlug}.`));
           setGenreInput(game.genre ? game.genre.join(', ') : 'Action, Adventure');
           setReleaseDate(game.releaseDate || 'Available Now');
-          setPrice(game.price !== undefined ? String(game.price) : '19.99');
+          setPrice(game.price !== undefined ? String(game.price) : '0');
           setHeaderImage(game.headerImage || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80');
           setScreenshotsInput(game.screenshots && game.screenshots.length > 0 ? game.screenshots.join('\n') : '');
           setTrailerUrl(game.trailerUrl || '');
@@ -368,12 +368,12 @@ export default function AddGame() {
 
             <div>
               <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
-                Price (USD)
+                Price (USD) { (price === '0' || Number(price) === 0) && <span style={{ color: '#39FF88', fontWeight: 800, marginLeft: '6px' }}>★ Free to Play</span> }
               </label>
               <input
                 type="number"
                 step="0.01"
-                placeholder="14.99"
+                placeholder="0.00 (Enter 0 for Free to Play)"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 className="input-field"
