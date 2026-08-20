@@ -1,3 +1,4 @@
+// AddGame Component — IndieGamer Hub (Updated for App ID 3564740 Where Winds Meet auto-fill)
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
