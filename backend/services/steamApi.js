@@ -356,22 +356,86 @@ export const stripHtml = (text = '') => {
     .trim();
 };
 
-export const fetchSteamGameData = async (appId) => {
-  const cleanAppId = String(appId || '367520').trim();
+export const fetchSteamGameData = async (queryOrId) => {
+  const cleanInput = String(queryOrId || '367520').trim();
 
-  if (POPULAR_STEAM_FALLBACKS[cleanAppId]) {
-    console.log(`Using cached Steam data for App ID: ${cleanAppId}`);
-    const cached = POPULAR_STEAM_FALLBACKS[cleanAppId];
+  // 1. Check if input is a known direct key in fallback dictionary
+  if (POPULAR_STEAM_FALLBACKS[cleanInput]) {
+    console.log(`Using cached Steam data for key/App ID: ${cleanInput}`);
+    const cached = POPULAR_STEAM_FALLBACKS[cleanInput];
     return {
-      steamAppId: cleanAppId,
+      steamAppId: cleanInput,
       ...cached,
       description: stripHtml(cached.description),
       shortDescription: stripHtml(cached.shortDescription || cached.description)
     };
   }
 
+  // 2. Check if input matches any title in fallback dictionary (case-insensitive search)
+  const lowerQuery = cleanInput.toLowerCase();
+  const matchedFallbackKey = Object.keys(POPULAR_STEAM_FALLBACKS).find(key => {
+    const item = POPULAR_STEAM_FALLBACKS[key];
+    return item.title.toLowerCase().includes(lowerQuery) || lowerQuery.includes(item.title.toLowerCase());
+  });
+
+  if (matchedFallbackKey) {
+    console.log(`Matched fallback game title for query: "${cleanInput}" -> App ID ${matchedFallbackKey}`);
+    const cached = POPULAR_STEAM_FALLBACKS[matchedFallbackKey];
+    return {
+      steamAppId: matchedFallbackKey,
+      ...cached,
+      description: stripHtml(cached.description),
+      shortDescription: stripHtml(cached.shortDescription || cached.description)
+    };
+  }
+
+  // 3. Resolve App ID: if input is numeric, use it; otherwise search Steam store API
+  let targetAppId = cleanInput;
+
+  if (!/^\d+$/.test(cleanInput)) {
+    try {
+      console.log(`Searching Steam store for game title: "${cleanInput}"`);
+      const searchUrl = `https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(cleanInput)}&l=english&cc=US`;
+      const searchRes = await axios.get(searchUrl, {
+        timeout: 5000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (searchRes.data && Array.isArray(searchRes.data.items) && searchRes.data.items.length > 0) {
+        targetAppId = String(searchRes.data.items[0].id);
+        console.log(`Steam search resolved "${cleanInput}" to App ID: ${targetAppId}`);
+      }
+    } catch (searchErr) {
+      console.warn(`Steam store search failed for "${cleanInput}":`, searchErr.message);
+    }
+  }
+
+  // 4. Fetch details using resolved or direct numeric App ID
   try {
-    const url = `https://store.steampowered.com/api/appdetails?appids=${cleanAppId}&l=english`;
+    const isNumeric = /^\d+$/.test(targetAppId);
+    if (!isNumeric) {
+      // Return a structured clean fallback if we could not resolve an App ID
+      const formattedTitle = cleanInput.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      return {
+        steamAppId: '',
+        title: formattedTitle,
+        description: `Metadata populated for ${formattedTitle}. Please review and update details before publishing.`,
+        shortDescription: `${formattedTitle} action game details.`,
+        genre: ['Indie', 'Action', 'Adventure'],
+        releaseDate: 'Available Now',
+        price: 0,
+        headerImage: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80',
+        screenshots: ['https://images.unsplash.com/photo-1511512578047-dfb367046420?w=1200&auto=format&fit=crop&q=80'],
+        trailerUrl: '',
+        developerName: 'Game Studio',
+        storeLinks: [{ store: 'Steam', url: 'https://store.steampowered.com' }]
+      };
+    }
+
+    const url = `https://store.steampowered.com/api/appdetails?appids=${targetAppId}&l=english`;
     const response = await axios.get(url, {
       timeout: 8000,
       headers: {
@@ -380,10 +444,10 @@ export const fetchSteamGameData = async (appId) => {
         'Accept-Language': 'en-US,en;q=0.9'
       }
     });
-    const data = response.data?.[cleanAppId];
+    const data = response.data?.[targetAppId];
 
     if (!data || !data.success || !data.data) {
-      throw new Error(`Steam App ID ${cleanAppId} details unavailable`);
+      throw new Error(`Steam App ID ${targetAppId} details unavailable`);
     }
 
     const game = data.data;
@@ -416,8 +480,8 @@ export const fetchSteamGameData = async (appId) => {
     const rawShort = game.short_description || game.name;
 
     return {
-      steamAppId: cleanAppId,
-      title: game.name || `PC Game (App ${cleanAppId})`,
+      steamAppId: targetAppId,
+      title: game.name || cleanInput,
       description: stripHtml(rawDesc),
       shortDescription: stripHtml(rawShort),
       genre: genres,
@@ -427,22 +491,25 @@ export const fetchSteamGameData = async (appId) => {
       screenshots: screenshots.slice(0, 8),
       trailerUrl: game.movies?.[0]?.mp4?.max || game.movies?.[0]?.webm?.max || '',
       developerName: game.developers?.[0] || 'Game Developer Studio',
-      storeLinks: [{ store: 'Steam', url: `https://store.steampowered.com/app/${cleanAppId}/` }]
+      storeLinks: [{ store: 'Steam', url: `https://store.steampowered.com/app/${targetAppId}/` }]
     };
   } catch (error) {
+    const formattedTitle = cleanInput.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     return {
-      steamAppId: cleanAppId,
-      title: `PC Game (App ${cleanAppId})`,
-      description: `Imported metadata for Steam App ID ${cleanAppId}.`,
-      shortDescription: `PC Game imported via Steam App ID ${cleanAppId}.`,
+      steamAppId: /^\d+$/.test(targetAppId) ? targetAppId : '',
+      title: formattedTitle,
+      description: `Imported metadata for ${formattedTitle}.`,
+      shortDescription: `${formattedTitle} action game.`,
       genre: ['Free to Play', 'Action', 'RPG', 'Open World'],
       releaseDate: 'Available Now',
       price: 0,
-      headerImage: `https://cdn.cloudflare.steamstatic.com/steam/apps/${cleanAppId}/header.jpg`,
-      screenshots: [`https://cdn.cloudflare.steamstatic.com/steam/apps/${cleanAppId}/ss_8d4b31a31d2fb7c8ef4a779148d45f448c909e7c.1920x1080.jpg`],
+      headerImage: /^\d+$/.test(targetAppId)
+        ? `https://cdn.cloudflare.steamstatic.com/steam/apps/${targetAppId}/header.jpg`
+        : 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80',
+      screenshots: ['https://images.unsplash.com/photo-1511512578047-dfb367046420?w=1200&auto=format&fit=crop&q=80'],
       trailerUrl: '',
       developerName: 'Game Studio',
-      storeLinks: [{ store: 'Steam', url: `https://store.steampowered.com/app/${cleanAppId}/` }]
+      storeLinks: [{ store: 'Steam', url: /^\d+$/.test(targetAppId) ? `https://store.steampowered.com/app/${targetAppId}/` : 'https://store.steampowered.com' }]
     };
   }
 };

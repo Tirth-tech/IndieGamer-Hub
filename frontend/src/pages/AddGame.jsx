@@ -1,10 +1,11 @@
-// AddGame Component — IndieGamer Hub (Updated for App ID 3564740 Where Winds Meet auto-fill)
+// AddGame Component — IndieGamer Hub (Updated for App ID 3564740 Where Winds Meet auto-fill & Game Name Search)
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Download, PlusCircle, Sparkles, AlertCircle, CheckCircle } from 'lucide-react';
+import { Download, PlusCircle, Sparkles, AlertCircle, CheckCircle, Zap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
+import { stripHtml } from '../utils/textUtils';
 
 export default function AddGame() {
   const { user } = useAuth();
@@ -141,48 +142,56 @@ export default function AddGame() {
     }
   };
 
-  // Handle auto-fill sync from Steam App ID or Epic Games Slug
-  const handleImportSync = async () => {
-    if (importSource === 'steam') {
-      const cleanId = steamAppId.trim();
-      if (!cleanId) {
-        toast.warning('Please enter a valid Steam App ID (e.g. 3564740 for Where Winds Meet, 367520 for Hollow Knight)', 'Invalid Steam ID');
+  // Handle auto-fill sync from Steam App ID, Game Name, or Epic Games Slug
+  const handleImportSync = async (queryOverride, forcedSource) => {
+    const activeSource = forcedSource || importSource;
+    if (forcedSource) setImportSource(forcedSource);
+
+    if (activeSource === 'steam') {
+      const cleanQuery = (queryOverride !== undefined ? queryOverride : steamAppId).trim();
+      if (!cleanQuery) {
+        toast.warning('Please enter a Game Name or Steam App ID (e.g. "Where Winds Meet" or 3564740)', 'Input Required');
         return;
       }
+      setSteamAppId(cleanQuery);
 
       try {
         setSyncing(true);
         setSyncSuccess(false);
-        const res = await axios.get(`/api/games/steam-preview/${cleanId}`);
+        const res = await axios.get(`/api/games/steam-preview/${encodeURIComponent(cleanQuery)}`);
         const game = res.data?.game;
 
         if (game) {
-          setTitle(game.title || `PC Game (${cleanId})`);
-          setDescription(stripHtml(game.description || `Imported metadata for Steam App ID ${cleanId}.`));
+          setTitle(game.title || cleanQuery);
+          setDescription(stripHtml(game.description || `Imported metadata for ${cleanQuery}.`));
           setGenreInput(Array.isArray(game.genre) ? game.genre.join(', ') : (game.genre || 'Free to Play, Action, RPG'));
           setReleaseDate(game.releaseDate || 'Available Now');
           setPrice(game.price !== undefined ? String(game.price) : '0');
-          setHeaderImage(game.headerImage || `https://cdn.cloudflare.steamstatic.com/steam/apps/${cleanId}/header.jpg`);
+          setHeaderImage(game.headerImage || `https://cdn.cloudflare.steamstatic.com/steam/apps/${game.steamAppId || '3564740'}/header.jpg`);
           setScreenshotsInput(game.screenshots && game.screenshots.length > 0 ? game.screenshots.join('\n') : '');
           setTrailerUrl(game.trailerUrl || '');
           if (game.developerName) setDeveloperName(game.developerName);
+          if (game.steamAppId) setSteamAppId(game.steamAppId);
           setSyncSuccess(true);
-          toast.success(`Metadata auto-filled for "${game.title || 'Steam Game'}"!`, 'Auto-Fill Success');
+          toast.success(`Metadata auto-filled for "${game.title || cleanQuery}"!`, 'Auto-Fill Success');
         }
       } catch (err) {
         // Client-side instant preset lookup fallback
-        const preset = CLIENT_STEAM_PRESETS[cleanId] || {
-          title: `PC Game (App ${cleanId})`,
-          description: `Imported metadata for Steam App ID ${cleanId}.`,
+        const presetKey = Object.keys(CLIENT_STEAM_PRESETS).find(
+          k => k === cleanQuery || CLIENT_STEAM_PRESETS[k].title.toLowerCase().includes(cleanQuery.toLowerCase())
+        );
+        const preset = CLIENT_STEAM_PRESETS[presetKey || '3564740'] || {
+          title: cleanQuery,
+          description: `Imported metadata for ${cleanQuery}.`,
           genre: 'Free to Play, Action, Open World',
           releaseDate: 'Available Now',
           price: '0',
           developerName: 'Game Studio',
-          headerImage: `https://cdn.cloudflare.steamstatic.com/steam/apps/${cleanId}/header.jpg`
+          headerImage: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80'
         };
 
         setTitle(preset.title);
-        setDescription(preset.description);
+        setDescription(stripHtml(preset.description));
         setGenreInput(preset.genre);
         setReleaseDate(preset.releaseDate);
         setPrice(preset.price);
@@ -195,16 +204,17 @@ export default function AddGame() {
         setSyncing(false);
       }
     } else {
-      const cleanSlug = epicSlug.trim().toLowerCase();
+      const cleanSlug = (queryOverride !== undefined ? queryOverride : epicSlug).trim().toLowerCase();
       if (!cleanSlug) {
-        toast.warning('Please enter a valid Epic Games Product Slug (e.g. fortnite, alan-wake-2)', 'Invalid Epic Slug');
+        toast.warning('Please enter a valid Epic Games Product Slug or Name (e.g. fortnite, alan-wake-2)', 'Invalid Input');
         return;
       }
+      setEpicSlug(cleanSlug);
 
       try {
         setSyncing(true);
         setSyncSuccess(false);
-        const res = await axios.get(`/api/games/epic-preview/${cleanSlug}`);
+        const res = await axios.get(`/api/games/epic-preview/${encodeURIComponent(cleanSlug)}`);
         const game = res.data?.game;
 
         if (game) {
@@ -298,7 +308,7 @@ export default function AddGame() {
           <PlusCircle color="var(--primary-cyan)" size={26} /> Publish Indie Game
         </h1>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '24px' }}>
-          Import metadata instantly using a Steam App ID or enter custom details manually.
+          Import metadata instantly using a Game Name, Steam App ID, or Epic Slug.
         </p>
 
         {/* STOREFRONT API IMPORT BOX */}
@@ -334,7 +344,7 @@ export default function AddGame() {
                   transition: 'all 0.2s'
                 }}
               >
-                Steam
+                Steam Search
               </button>
               <button
                 type="button"
@@ -359,21 +369,22 @@ export default function AddGame() {
           {importSource === 'steam' ? (
             <>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
-                Paste any Steam App ID (e.g. <code>367520</code> for Hollow Knight, <code>1145360</code> for Hades) to automatically populate pricing, genres, release date, header images, and screenshot galleries!
+                Enter any <strong>Game Name</strong> (e.g. <code>Where Winds Meet</code>, <code>Hollow Knight</code>, <code>Cyberpunk 2077</code>) or <strong>Steam App ID</strong> (e.g. <code>3564740</code>) to auto-fill pricing, genres, release date, images & screenshots!
               </p>
 
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
                 <input
                   type="text"
-                  placeholder="Enter Steam App ID (e.g. 367520)"
+                  placeholder="Enter Game Title or Steam App ID (e.g. Where Winds Meet, 3564740)"
                   value={steamAppId}
                   onChange={(e) => setSteamAppId(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleImportSync(); } }}
                   className="input-field"
                   style={{ flex: 1 }}
                 />
                 <button
                   type="button"
-                  onClick={handleImportSync}
+                  onClick={() => handleImportSync()}
                   disabled={syncing}
                   className="btn-primary"
                 >
@@ -387,18 +398,19 @@ export default function AddGame() {
                 Enter an Epic Games Store product slug (e.g. <code>fortnite</code>, <code>alan-wake-2</code>, <code>rocket-league</code>) to automatically load cover art, genres, price and screenshot assets!
               </p>
 
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
                 <input
                   type="text"
                   placeholder="Enter Epic Product Slug (e.g. fortnite)"
                   value={epicSlug}
                   onChange={(e) => setEpicSlug(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleImportSync(); } }}
                   className="input-field"
                   style={{ flex: 1 }}
                 />
                 <button
                   type="button"
-                  onClick={handleImportSync}
+                  onClick={() => handleImportSync()}
                   disabled={syncing}
                   className="btn-primary"
                 >
@@ -408,8 +420,42 @@ export default function AddGame() {
             </>
           )}
 
+          {/* Quick Preset Chips */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', marginTop: '10px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginRight: '4px' }}>⚡ Quick Samples:</span>
+            {[
+              { label: 'Where Winds Meet', query: '3564740', source: 'steam' },
+              { label: 'Hollow Knight', query: 'Hollow Knight', source: 'steam' },
+              { label: 'Black Myth: Wukong', query: 'Black Myth Wukong', source: 'steam' },
+              { label: 'Cyberpunk 2077', query: 'Cyberpunk 2077', source: 'steam' },
+              { label: 'Stardew Valley', query: 'Stardew Valley', source: 'steam' },
+              { label: 'Fortnite', query: 'fortnite', source: 'epic' },
+              { label: 'Rocket League', query: 'rocket-league', source: 'epic' }
+            ].map((preset) => (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => handleImportSync(preset.query, preset.source)}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  borderRadius: '12px',
+                  padding: '3px 10px',
+                  fontSize: '0.74rem',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(0, 242, 254, 0.2)'; e.currentTarget.style.borderColor = 'var(--primary-cyan)'; }}
+                onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)'; }}
+              >
+                + {preset.label}
+              </button>
+            ))}
+          </div>
+
           {syncSuccess && (
-            <div style={{ color: 'var(--accent-green)', fontSize: '0.85rem', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ color: 'var(--accent-green)', fontSize: '0.85rem', marginTop: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <CheckCircle size={16} /> Metadata synced successfully from {importSource === 'steam' ? 'Steam' : 'Epic Games'} API!
             </div>
           )}
@@ -418,12 +464,36 @@ export default function AddGame() {
         {/* MAIN GAME PUBLISHING FORM */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <div>
-            <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
-              Game Title *
-            </label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <label style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                Game Title *
+              </label>
+              {title.trim().length > 2 && (
+                <button
+                  type="button"
+                  onClick={() => handleImportSync(title, 'steam')}
+                  disabled={syncing}
+                  style={{
+                    background: 'rgba(0, 242, 254, 0.15)',
+                    border: '1px solid var(--primary-cyan)',
+                    color: 'var(--primary-cyan)',
+                    borderRadius: '6px',
+                    padding: '3px 10px',
+                    fontSize: '0.74rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <Zap size={12} /> Auto-Fill Details for "{title}"
+                </button>
+              )}
+            </div>
             <input
               type="text"
-              placeholder="e.g. Hollow Knight"
+              placeholder="e.g. Where Winds Meet, Hollow Knight, Elden Ring"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="input-field"
