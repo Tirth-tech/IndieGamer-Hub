@@ -480,13 +480,18 @@ body {
   text-align: center;
 }
 .flip-card-front {
-  background: #141414;
+  background: var(--bg-card);
   color: #fff;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 .flip-card-back {
-  background: #8b5cf6;
+  background: linear-gradient(135deg, rgba(28, 18, 12, 0.98) 0%, rgba(14, 10, 8, 0.98) 100%);
   color: #fff;
+  border: 1px solid rgba(255, 107, 0, 0.6);
+  box-shadow: 0 12px 35px rgba(255, 107, 0, 0.35);
   transform: rotateY(180deg);
 }
+
 
 

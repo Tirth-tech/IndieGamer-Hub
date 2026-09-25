@@ -248,14 +248,14 @@ export default function GameCard({ game }) {
             flexDirection: 'column',
             justifyContent: 'space-between',
             textAlign: 'left',
-            background: 'linear-gradient(135deg, rgba(24, 18, 32, 0.98) 0%, rgba(12, 10, 16, 0.98) 100%)',
-            border: '1px solid rgba(139, 92, 246, 0.6)',
-            boxShadow: '0 12px 35px rgba(139, 92, 246, 0.35)',
+            background: 'linear-gradient(135deg, rgba(26, 18, 12, 0.98) 0%, rgba(14, 10, 8, 0.98) 100%)',
+            border: '1px solid rgba(255, 107, 0, 0.6)',
+            boxShadow: '0 12px 35px rgba(255, 107, 0, 0.35)',
           }}
         >
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span className="badge-featured" style={{ background: 'rgba(139, 92, 246, 0.2)', color: '#a78bfa', borderColor: '#8b5cf6' }}>
+              <span className="badge-featured" style={{ background: 'rgba(255, 107, 0, 0.15)', color: '#FF6B00', borderColor: 'rgba(255, 107, 0, 0.5)' }}>
                 GAME OVERVIEW
               </span>
               <span style={{ fontSize: '0.75rem', color: '#FFB000', fontWeight: 700 }}>
@@ -294,7 +294,7 @@ export default function GameCard({ game }) {
               background: 'rgba(255,255,255,0.04)',
               padding: '8px 10px',
               borderRadius: '8px',
-              border: '1px solid rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255, 107, 0, 0.2)',
               marginBottom: '12px'
             }}>
               <div>
@@ -324,9 +324,9 @@ export default function GameCard({ game }) {
                 padding: '9px 14px',
                 fontSize: '0.85rem',
                 borderRadius: '8px',
-                background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-                borderColor: '#a78bfa',
-                boxShadow: '0 0 15px rgba(139, 92, 246, 0.4)'
+                background: 'linear-gradient(135deg, #FF6B00 0%, #CC5200 100%)',
+                borderColor: '#FFB000',
+                boxShadow: '0 0 16px rgba(255, 107, 0, 0.45)'
               }}
             >
               <Play size={14} fill="#fff" /> View Game Page

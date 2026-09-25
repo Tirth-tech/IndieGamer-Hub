@@ -205,7 +205,7 @@ export default function Home() {
       <section style={{ marginBottom: '50px' }} className="reveal">
         <div style={{ marginBottom: '20px' }}>
           <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Sparkles color="#8b5cf6" size={26} /> GSAP 3D Interactive Cards
+            <Sparkles color="var(--primary-green)" size={26} /> GSAP 3D Interactive Cards
           </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
             Hover or focus with keyboard to trigger high-performance GSAP 3D rotation animations with accessibility support.
@@ -219,44 +219,46 @@ export default function Home() {
           justifyContent: 'center',
           alignItems: 'center',
           padding: '24px',
-          background: 'rgba(20, 20, 20, 0.6)',
+          background: 'rgba(23, 19, 15, 0.7)',
           borderRadius: '16px',
-          border: '1px solid rgba(139, 92, 246, 0.3)',
+          border: '1px solid rgba(255, 107, 0, 0.35)',
           backdropFilter: 'blur(12px)'
         }}>
-          {/* Card 1: Default standard card matching prompt */}
+          {/* Card 1: Default standard card matching prompt style */}
           <FlipCard
+            frontStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}
+            backStyle={{ background: 'linear-gradient(135deg, #FF6B00 0%, #b34700 100%)', boxShadow: '0 8px 24px rgba(255, 107, 0, 0.4)' }}
             frontContent={<h3>Hover me</h3>}
-            backContent={<p>Back content revealed</p>}
+            backContent={<p style={{ fontWeight: 600 }}>Back content revealed</p>}
           />
 
           {/* Card 2: Indie Dev Spotlight */}
           <FlipCard
-            frontStyle={{ background: 'linear-gradient(135deg, #1f192f 0%, #141414 100%)', border: '1px solid #8b5cf6' }}
-            backStyle={{ background: 'linear-gradient(135deg, #FF6B00 0%, #b34700 100%)' }}
+            frontStyle={{ background: 'linear-gradient(135deg, #241710 0%, #141414 100%)', border: '1px solid #FF6B00' }}
+            backStyle={{ background: 'linear-gradient(135deg, #FFB000 0%, #cc8800 100%)', color: '#090909' }}
             frontContent={
               <div>
-                <Flame size={40} color="#8b5cf6" style={{ marginBottom: '12px' }} />
+                <Flame size={40} color="#FF6B00" style={{ marginBottom: '12px' }} />
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Indie Spotlight</h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '6px' }}>Flip to unlock perk</p>
               </div>
             }
             backContent={
               <div>
-                <Sparkles size={36} color="#fff" style={{ marginBottom: '8px' }} />
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Exclusive Access</h4>
-                <p style={{ fontSize: '0.85rem', marginTop: '6px' }}>Get early beta access to top community indie games!</p>
+                <Sparkles size={36} color="#090909" style={{ marginBottom: '8px' }} />
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Exclusive Access</h4>
+                <p style={{ fontSize: '0.85rem', marginTop: '6px', fontWeight: 600 }}>Get early beta access to top community indie games!</p>
               </div>
             }
           />
 
           {/* Card 3: Cyberpunk Hardware Specs */}
           <FlipCard
-            frontStyle={{ background: 'linear-gradient(135deg, #091a14 0%, #141414 100%)', border: '1px solid #FF6B00' }}
+            frontStyle={{ background: 'linear-gradient(135deg, #091a14 0%, #141414 100%)', border: '1px solid #39FF88' }}
             backStyle={{ background: 'linear-gradient(135deg, #39FF88 0%, #009944 100%)', color: '#050505' }}
             frontContent={
               <div>
-                <Zap size={40} color="#FF6B00" style={{ marginBottom: '12px' }} />
+                <Zap size={40} color="#39FF88" style={{ marginBottom: '12px' }} />
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Smooth 60 FPS</h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '6px' }}>Hardware Accelerated</p>
               </div>

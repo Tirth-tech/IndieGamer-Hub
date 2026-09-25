@@ -87,10 +87,11 @@ export default function FlipCard({
             borderRadius: '16px',
             padding: '1rem',
             textAlign: 'center',
-            background: '#8b5cf6',
+            background: 'linear-gradient(135deg, #1f140e 0%, #0d0a08 100%)',
             color: '#fff',
+            border: '1px solid rgba(255, 107, 0, 0.6)',
             transform: 'rotateY(180deg)',
-            boxShadow: '0 8px 24px rgba(139, 92, 246, 0.4)',
+            boxShadow: '0 8px 24px rgba(255, 107, 0, 0.35)',
             ...backStyle
           }}
         >
