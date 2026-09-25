@@ -5,6 +5,8 @@ import { Flame, Sparkles, Compass, X, ArrowRight, Zap, Shield, Tractor, Crosshai
 import HeroCarousel from '../components/HeroCarousel';
 import GameCard from '../components/GameCard';
 import AAAComparison from '../components/AAAComparison';
+import FlipCard from '../components/FlipCard';
+
 
 export default function Home() {
   const [featuredGames, setFeaturedGames] = useState([]);
@@ -198,6 +200,77 @@ export default function Home() {
 
       {/* AAA COMPARISON TABLE & HARDWARE SPECIFICATIONS */}
       <AAAComparison />
+
+      {/* 🔄 GSAP FLIP CARD SPOTLIGHT SECTION */}
+      <section style={{ marginBottom: '50px' }} className="reveal">
+        <div style={{ marginBottom: '20px' }}>
+          <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Sparkles color="#8b5cf6" size={26} /> GSAP 3D Interactive Cards
+          </h2>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+            Hover or focus with keyboard to trigger high-performance GSAP 3D rotation animations with accessibility support.
+          </p>
+        </div>
+
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '24px',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '24px',
+          background: 'rgba(20, 20, 20, 0.6)',
+          borderRadius: '16px',
+          border: '1px solid rgba(139, 92, 246, 0.3)',
+          backdropFilter: 'blur(12px)'
+        }}>
+          {/* Card 1: Default standard card matching prompt */}
+          <FlipCard
+            frontContent={<h3>Hover me</h3>}
+            backContent={<p>Back content revealed</p>}
+          />
+
+          {/* Card 2: Indie Dev Spotlight */}
+          <FlipCard
+            frontStyle={{ background: 'linear-gradient(135deg, #1f192f 0%, #141414 100%)', border: '1px solid #8b5cf6' }}
+            backStyle={{ background: 'linear-gradient(135deg, #FF6B00 0%, #b34700 100%)' }}
+            frontContent={
+              <div>
+                <Flame size={40} color="#8b5cf6" style={{ marginBottom: '12px' }} />
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Indie Spotlight</h3>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '6px' }}>Flip to unlock perk</p>
+              </div>
+            }
+            backContent={
+              <div>
+                <Sparkles size={36} color="#fff" style={{ marginBottom: '8px' }} />
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Exclusive Access</h4>
+                <p style={{ fontSize: '0.85rem', marginTop: '6px' }}>Get early beta access to top community indie games!</p>
+              </div>
+            }
+          />
+
+          {/* Card 3: Cyberpunk Hardware Specs */}
+          <FlipCard
+            frontStyle={{ background: 'linear-gradient(135deg, #091a14 0%, #141414 100%)', border: '1px solid #FF6B00' }}
+            backStyle={{ background: 'linear-gradient(135deg, #39FF88 0%, #009944 100%)', color: '#050505' }}
+            frontContent={
+              <div>
+                <Zap size={40} color="#FF6B00" style={{ marginBottom: '12px' }} />
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Smooth 60 FPS</h3>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '6px' }}>Hardware Accelerated</p>
+              </div>
+            }
+            backContent={
+              <div>
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 800 }}>GSAP 3D Engine</h4>
+                <p style={{ fontSize: '0.85rem', marginTop: '6px', fontWeight: 600 }}>Supports prefers-reduced-motion & 3D transform acceleration.</p>
+              </div>
+            }
+          />
+        </div>
+      </section>
+
 
       {/* 💡 HIGH-END RTX 3060+ HIGH PERFORMANCE BANNER */}
       <section style={{ marginBottom: '40px' }} className="reveal">
