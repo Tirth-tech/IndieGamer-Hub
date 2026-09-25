@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Heart, Play, Check } from 'lucide-react';
+import { Star, Heart, Play, Check, RotateCw } from 'lucide-react';
+import gsap from 'gsap';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from './Toast';
 import { stripHtml } from '../utils/textUtils';
@@ -10,20 +11,37 @@ export default function GameCard({ game }) {
   const toast = useToast();
   const isWishlisted = user?.savedGames?.includes(game._id);
 
-  const [isHovered, setIsHovered] = useState(false);
-  const hoverTimeoutRef = useRef(null);
+  const innerRef = useRef(null);
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  const flip = (deg) => {
+    if (!innerRef.current) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      gsap.set(innerRef.current, { rotationY: deg });
+    } else {
+      gsap.to(innerRef.current, { rotationY: deg, duration: 0.8, ease: 'back.out(1.4)' });
+    }
+  };
 
   const handleMouseEnter = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsHovered(true);
-    }, 180);
+    setIsFlipped(true);
+    flip(180);
   };
 
   const handleMouseLeave = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
-    setIsHovered(false);
+    setIsFlipped(false);
+    flip(0);
+  };
+
+  const handleFocus = () => {
+    setIsFlipped(true);
+    flip(180);
+  };
+
+  const handleBlur = () => {
+    setIsFlipped(false);
+    flip(0);
   };
 
   const handleWishlistClick = (e) => {
@@ -38,242 +56,305 @@ export default function GameCard({ game }) {
 
   return (
     <div
-      style={{
-        position: 'relative',
-        height: '100%',
-        zIndex: isHovered ? 60 : 1,
-      }}
+      className="flip-card"
+      tabIndex={0}
+      role="button"
+      aria-label={`Flip card for ${game.title}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      style={{
+        width: '100%',
+        height: '380px',
+        perspective: '1000px',
+        cursor: 'pointer',
+        outline: 'none',
+        position: 'relative',
+        zIndex: isFlipped ? 50 : 1,
+      }}
     >
-      {/* Base & Floating Expanded Card Container (Steam & Epic Store Style) */}
       <div
-        className="glass-card"
+        ref={innerRef}
+        className="flip-card-inner"
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
           position: 'relative',
-          borderRadius: '12px',
-          overflow: isHovered ? 'visible' : 'hidden',
-          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-          transform: isHovered ? 'scale(1.08) translateY(-8px)' : 'scale(1.0) translateY(0)',
-          boxShadow: isHovered
-            ? '0 20px 45px rgba(0, 0, 0, 0.85), 0 0 32px rgba(255, 107, 0, 0.45)'
-            : '0 4px 12px rgba(0, 0, 0, 0.3)',
-          border: isHovered ? '1px solid rgba(255, 107, 0, 0.70)' : '1px solid var(--border-color)',
-          background: isHovered ? 'rgba(18, 14, 11, 0.98)' : 'var(--bg-card)',
-          backdropFilter: 'blur(20px)',
+          width: '100%',
+          height: '100%',
+          transformStyle: 'preserve-3d',
+          borderRadius: '16px',
         }}
       >
-        {/* Header Image Container (Keeps Official Game Header Image Consistent) */}
-        <Link
-          to={`/game/${game._id}`}
+        {/* ──────── FRONT FACE ──────── */}
+        <div
+          className="flip-card-front glass-card"
           style={{
-            position: 'relative',
-            display: 'block',
+            position: 'absolute',
+            inset: 0,
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            borderRadius: '16px',
             overflow: 'hidden',
-            height: isHovered ? '195px' : '170px',
-            borderRadius: '12px 12px 0 0',
-            transition: 'height 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            padding: 0,
+            textAlign: 'left',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
           }}
         >
-          {/* Main Official Header Image */}
-          <img
-            src={game.headerImage || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80'}
-            alt={game.title}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              transition: 'transform 0.4s ease',
-              transform: isHovered ? 'scale(1.06)' : 'scale(1.0)',
-            }}
-          />
-
-          {/* Featured Badge */}
-          {game.isFeatured && (
-            <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 3 }}>
-              <span className="badge-featured">
-                ★ FEATURED
-              </span>
-            </div>
-          )}
-
-          {/* Wishlist Button */}
-          <button
-            onClick={handleWishlistClick}
-            title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
-            style={{
-              position: 'absolute',
-              top: '10px',
-              right: '10px',
-              background: 'rgba(9, 9, 9, 0.85)',
-              backdropFilter: 'blur(8px)',
-              border: isWishlisted ? '1px solid rgba(255, 107, 0, 0.6)' : '1px solid rgba(255,255,255,0.15)',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              zIndex: 4,
-              transition: 'all 0.2s ease',
-              boxShadow: isWishlisted ? '0 0 12px rgba(255, 107, 0, 0.4)' : 'none'
-            }}
-          >
-            <Heart
-              size={18}
-              color={isWishlisted ? '#FF6B00' : 'var(--text-muted)'}
-              fill={isWishlisted ? '#FF6B00' : 'none'}
+          {/* Header Image */}
+          <div style={{ position: 'relative', height: '180px', overflow: 'hidden' }}>
+            <img
+              src={game.headerImage || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80'}
+              alt={game.title}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
             />
-          </button>
 
-          {/* Price Tag Overlay */}
-          <div style={{
-            position: 'absolute',
-            bottom: '10px',
-            right: '10px',
-            background: 'rgba(9, 9, 9, 0.90)',
-            backdropFilter: 'blur(8px)',
-            padding: '4px 10px',
-            borderRadius: '6px',
-            fontSize: '0.85rem',
-            fontFamily: 'var(--font-heading)',
-            fontWeight: 800,
-            color: game.price === 0 ? '#39FF88' : '#FFB000',
-            border: '1px solid rgba(255, 107, 0, 0.3)',
-            zIndex: 3
-          }}>
-            {game.price === 0 ? 'FREE TO PLAY' : formatPrice(game.price)}
+            {game.isFeatured && (
+              <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 3 }}>
+                <span className="badge-featured">★ FEATURED</span>
+              </div>
+            )}
+
+            <button
+              onClick={handleWishlistClick}
+              title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                background: 'rgba(9, 9, 9, 0.85)',
+                backdropFilter: 'blur(8px)',
+                border: isWishlisted ? '1px solid rgba(255, 107, 0, 0.6)' : '1px solid rgba(255,255,255,0.15)',
+                borderRadius: '50%',
+                width: '34px',
+                height: '34px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                zIndex: 4,
+              }}
+            >
+              <Heart
+                size={16}
+                color={isWishlisted ? '#FF6B00' : 'var(--text-muted)'}
+                fill={isWishlisted ? '#FF6B00' : 'none'}
+              />
+            </button>
+
+            {/* Price Tag Overlay */}
+            <div style={{
+              position: 'absolute',
+              bottom: '10px',
+              right: '10px',
+              background: 'rgba(9, 9, 9, 0.90)',
+              backdropFilter: 'blur(8px)',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              fontSize: '0.82rem',
+              fontFamily: 'var(--font-heading)',
+              fontWeight: 800,
+              color: game.price === 0 ? '#39FF88' : '#FFB000',
+              border: '1px solid rgba(255, 107, 0, 0.3)',
+              zIndex: 3
+            }}>
+              {game.price === 0 ? 'FREE TO PLAY' : formatPrice(game.price)}
+            </div>
           </div>
-        </Link>
 
-        {/* Card Main Content */}
-        <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-              <Link to={`/game/${game._id}`} style={{
+          {/* Body Content */}
+          <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
+            <div>
+              <h3 style={{
                 fontFamily: 'var(--font-title)',
                 fontWeight: 800,
                 fontSize: '1.05rem',
                 color: '#fff',
-                lineHeight: '1.3'
+                marginBottom: '2px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
               }}>
                 {game.title}
-              </Link>
+              </h3>
+
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                By <span style={{ color: '#FFB000', fontWeight: 600 }}>{game.developerName || 'Indie Developer'}</span>
+              </div>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
+                {game.genre?.slice(0, 3).map((g, idx) => (
+                  <span key={idx} className="badge-genre" style={{ fontSize: '0.68rem', padding: '2px 6px' }}>
+                    {g}
+                  </span>
+                ))}
+              </div>
             </div>
 
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
-              By <span style={{ color: '#FFB000', fontWeight: 600 }}>{game.developerName || 'Indie Developer'}</span>
+            {/* Footer info & Hover indicator */}
+            <div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingTop: '8px',
+                borderTop: '1px solid rgba(255,255,255,0.08)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Star size={14} className="star-filled" />
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>
+                    {game.averageRating > 0 ? game.averageRating.toFixed(1) : 'New'}
+                  </span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
+                    ({game.reviewCount || 0})
+                  </span>
+                </div>
+
+                <span style={{
+                  fontSize: '0.72rem',
+                  color: '#FF6B00',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  <RotateCw size={12} /> Flip Card
+                </span>
+              </div>
             </div>
+          </div>
+        </div>
+
+        {/* ──────── BACK FACE (Revealed on GSAP 3D Flip) ──────── */}
+        <div
+          className="flip-card-back glass-card"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)',
+            borderRadius: '16px',
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            textAlign: 'left',
+            background: 'linear-gradient(135deg, rgba(24, 18, 32, 0.98) 0%, rgba(12, 10, 16, 0.98) 100%)',
+            border: '1px solid rgba(139, 92, 246, 0.6)',
+            boxShadow: '0 12px 35px rgba(139, 92, 246, 0.35)',
+          }}
+        >
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span className="badge-featured" style={{ background: 'rgba(139, 92, 246, 0.2)', color: '#a78bfa', borderColor: '#8b5cf6' }}>
+                GAME OVERVIEW
+              </span>
+              <span style={{ fontSize: '0.75rem', color: '#FFB000', fontWeight: 700 }}>
+                {game.price === 0 ? 'FREE' : formatPrice(game.price)}
+              </span>
+            </div>
+
+            <h3 style={{
+              fontFamily: 'var(--font-title)',
+              fontWeight: 800,
+              fontSize: '1.15rem',
+              color: '#fff',
+              marginBottom: '6px'
+            }}>
+              {game.title}
+            </h3>
 
             <p style={{
-              fontSize: '0.82rem',
-              color: 'var(--text-muted)',
+              fontSize: '0.8rem',
+              color: '#d1d5db',
               lineHeight: '1.45',
-              marginBottom: '10px',
+              marginBottom: '12px',
               display: '-webkit-box',
-              WebkitLineClamp: isHovered ? 4 : 2,
+              WebkitLineClamp: 4,
               WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              transition: 'all 0.3s ease'
+              overflow: 'hidden'
             }}>
               {stripHtml(game.shortDescription || game.description)}
             </p>
-          </div>
 
-          <div>
-            {/* Genre Chips */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '10px' }}>
-              {game.genre?.slice(0, isHovered ? 4 : 3).map((g, idx) => (
-                <span key={idx} className="badge-genre" style={{ fontSize: '0.7rem', padding: '3px 8px' }}>
-                  {g}
-                </span>
-              ))}
-            </div>
-
-            {/* Rating Footer */}
+            {/* Quick Metrics */}
             <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingTop: '10px',
-              borderTop: '1px solid rgba(255,255,255,0.08)'
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '8px',
+              background: 'rgba(255,255,255,0.04)',
+              padding: '8px 10px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255,255,255,0.08)',
+              marginBottom: '12px'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Star size={15} className="star-filled" />
-                <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#fff' }}>
-                  {game.averageRating > 0 ? game.averageRating.toFixed(1) : 'New'}
+              <div>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', display: 'block' }}>RATING</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#FFB000' }}>
+                  ★ {game.averageRating > 0 ? game.averageRating.toFixed(1) : 'New'}
                 </span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-                  ({game.reviewCount || 0})
-                </span>
-                {game.hoursPlayed > 0 && (
-                  <span style={{
-                    fontSize: '0.72rem',
-                    color: 'var(--primary-green)',
-                    marginLeft: '8px',
-                    background: 'rgba(255, 107, 0, 0.1)',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    fontWeight: 800,
-                    border: '1px solid rgba(255, 107, 0, 0.2)'
-                  }}>
-                    ⏱ {game.hoursPlayed} hrs
-                  </span>
-                )}
               </div>
-
-              {!isHovered && (
-                <span style={{ fontSize: '0.75rem', color: '#FF6B00', fontWeight: 600 }}>
-                  Preview →
+              <div>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', display: 'block' }}>PLAYTIME</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#39FF88' }}>
+                  ⏱ {game.hoursPlayed ? `${game.hoursPlayed} hrs` : '15+ hrs'}
                 </span>
-              )}
+              </div>
             </div>
           </div>
 
-          {/* Steam / Epic Style Expanded Action Flyout (Appears smoothly on hover) */}
-          {isHovered && (
-            <div
+          {/* Action CTAs on the Back */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <Link
+              to={`/game/${game._id}`}
+              className="btn-primary"
+              onClick={(e) => e.stopPropagation()}
               style={{
-                marginTop: '12px',
-                paddingTop: '12px',
-                borderTop: '1px dashed rgba(255, 107, 0, 0.3)',
-                animation: 'slideUpFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+                width: '100%',
+                justifyContent: 'center',
+                padding: '9px 14px',
+                fontSize: '0.85rem',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
+                borderColor: '#a78bfa',
+                boxShadow: '0 0 15px rgba(139, 92, 246, 0.4)'
               }}
             >
-              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                <Link
-                  to={`/game/${game._id}`}
-                  className="btn-primary"
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    padding: '8px 12px',
-                    fontSize: '0.82rem',
-                    borderRadius: '6px'
-                  }}
-                >
-                  <Play size={14} fill="#fff" /> Explore Game Page
-                </Link>
+              <Play size={14} fill="#fff" /> View Game Page
+            </Link>
 
-                <button
-                  onClick={handleWishlistClick}
-                  className="btn-secondary"
-                  style={{
-                    padding: '8px 12px',
-                    fontSize: '0.82rem',
-                    borderRadius: '6px',
-                    borderColor: isWishlisted ? '#FF6B00' : 'var(--border-color)'
-                  }}
-                >
-                  {isWishlisted ? <Check size={14} color="#FF6B00" /> : <Heart size={14} />}
-                </button>
-              </div>
-            </div>
-          )}
+            <button
+              onClick={handleWishlistClick}
+              className="btn-secondary"
+              style={{
+                width: '100%',
+                justifyContent: 'center',
+                padding: '8px 14px',
+                fontSize: '0.82rem',
+                borderRadius: '8px',
+                borderColor: isWishlisted ? '#FF6B00' : 'rgba(255,255,255,0.2)'
+              }}
+            >
+              {isWishlisted ? (
+                <>
+                  <Check size={14} color="#FF6B00" /> Saved to Wishlist
+                </>
+              ) : (
+                <>
+                  <Heart size={14} /> Add to Wishlist
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>
